@@ -41,5 +41,5 @@ kotlin {
 }
 
 android {
-    namespace = "doubletapp.tracker.compose.common"
+    namespace = "${AppInfo.id}.common"
 }
