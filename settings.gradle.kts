@@ -1,4 +1,4 @@
-rootProject.name = "MyApplication"
+rootProject.name = "ComposeDTracker"
 
 include(":androidApp")
 include(":shared")
