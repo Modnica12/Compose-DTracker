@@ -5,14 +5,14 @@ plugins {
 }
 
 android {
-    namespace = "${AppInfo.id}.tracker"
+    namespace = "${AppInfo.id}.tracker.data"
 }
 
 kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                api(project(":feature:tracker:api"))
+                implementation(project(":feature:tracker:api"))
                 implementation(project(":common:core"))
             }
         }

@@ -1,5 +1,4 @@
-import data.TrackerRecordsRepositoryImpl
-import data.ktor.KtorTrackerRecordsDataSource
+import ktor.KtorTrackerRecordsDataSource
 import org.koin.dsl.module
 
 fun recordsHistoryModule() = module {

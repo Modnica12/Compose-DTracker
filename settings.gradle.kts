@@ -21,4 +21,5 @@ include(":common:core")
 include(":shared")
 
 include(":feature:tracker:api")
-include(":feature:tracker:impl")
+include(":feature:tracker:data")
+include(":feature:tracker:presentation")

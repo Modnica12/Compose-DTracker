@@ -1,9 +1,6 @@
-package data
-
-import TrackerRecordsRepository
-import data.ktor.KtorTrackerRecordsDataSource
-import data.model.TrackerRecordRemote
-import data.model.toDomain
+import ktor.KtorTrackerRecordsDataSource
+import model.TrackerRecordRemote
+import model.toDomain
 import model.TrackerRecord
 
 internal class TrackerRecordsRepositoryImpl(
