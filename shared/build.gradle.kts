@@ -23,6 +23,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(project(":common:core"))
+                implementation(project(":feature:tracker:impl"))
             }
         }
     }

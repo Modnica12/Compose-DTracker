@@ -19,3 +19,6 @@ rootProject.name = "ComposeDTracker"
 include(":androidApp")
 include(":common:core")
 include(":shared")
+
+include(":feature:tracker:api")
+include(":feature:tracker:impl")

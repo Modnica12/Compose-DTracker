@@ -40,4 +40,4 @@ internal fun ktorModule() = module {
     }
 }
 
-private const val BASE_URL = ""
+private const val BASE_URL = "https://test.api.is.doubletapp.io/api"
