@@ -18,6 +18,14 @@ kotlin {
         }
         extraSpecAttributes["resources"] = "['src/commonMain/resources/**', 'src/iosMain/resources/**']"
     }
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation(project(":common:core"))
+            }
+        }
+    }
 }
 
 android {

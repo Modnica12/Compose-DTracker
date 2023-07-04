@@ -17,4 +17,5 @@ dependencyResolutionManagement {
 rootProject.name = "ComposeDTracker"
 
 include(":androidApp")
+include(":common:core")
 include(":shared")
