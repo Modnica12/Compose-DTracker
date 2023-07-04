@@ -1,3 +1,3 @@
 object AppInfo {
-    const val id = "doubletapp.tracker.compose"
+    const val id = "doubletapp.iS.compose"
 }

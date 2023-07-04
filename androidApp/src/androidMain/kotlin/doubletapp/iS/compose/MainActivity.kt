@@ -1,4 +1,4 @@
-package doubletapp.tracker.compose
+package doubletapp.iS.compose
 
 import MainView
 import android.os.Bundle
