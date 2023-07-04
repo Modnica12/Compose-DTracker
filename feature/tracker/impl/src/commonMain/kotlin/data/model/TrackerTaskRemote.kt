@@ -1,9 +1,14 @@
 package data.model
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import model.TrackerTask
 
+@Serializable
 internal data class TrackerTaskRemote(
+    @SerialName("name")
     val name: String,
+    @SerialName("on_youtrack")
     val onYoutrack: Boolean
 )
 
