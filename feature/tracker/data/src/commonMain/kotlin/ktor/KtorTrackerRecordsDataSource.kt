@@ -1,8 +1,8 @@
-package data.ktor
+package ktor
 
-import data.model.TrackerRecordRemote
-import data.model.TrackerRecordsRequestBody
-import data.model.TrackerRecordsResponse
+import model.TrackerRecordRemote
+import model.TrackerRecordsRequestBody
+import model.TrackerRecordsResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.post

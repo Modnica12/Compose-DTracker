@@ -14,6 +14,8 @@ kotlin {
             dependencies {
                 api(project(":feature:tracker:api"))
                 implementation(project(":common:core"))
+                implementation(libs.kviewmodel.core)
+                implementation(libs.kviewmodel.compose)
             }
         }
     }

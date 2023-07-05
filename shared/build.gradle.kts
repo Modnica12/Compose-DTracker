@@ -25,8 +25,6 @@ kotlin {
                 implementation(project(":common:core"))
                 implementation(project(":feature:tracker:data"))
                 implementation(project(":feature:tracker:presentation"))
-                implementation(libs.kviewmodel.core)
-                implementation(libs.kviewmodel.compose)
             }
         }
     }
