@@ -1,9 +1,9 @@
-import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
+import theme.AppTheme
 
 @Composable
 fun App() {
-    MaterialTheme {
+    AppTheme {
         TrackerRecordsScreen()
     }
 }
