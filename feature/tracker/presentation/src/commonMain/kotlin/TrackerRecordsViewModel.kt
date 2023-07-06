@@ -1,17 +1,16 @@
 import com.adeo.kviewmodel.BaseSharedViewModel
 import di.getKoinInstance
 import kotlinx.coroutines.launch
-import model.TrackerRecord
-import model.TrackerRecordItem
-import model.toPresentation
+import model.TrackerDateGroup
+import model.toDateGroups
 
 class TrackerRecordsViewModel: BaseSharedViewModel<State, Action, Event>(State()) {
 
     init {
         val repository: TrackerRecordsRepository = getKoinInstance()
         viewModelScope.launch {
-            val records = repository.getRecords().map(TrackerRecord::toPresentation)
-            viewState = viewState.copy(records = records)
+            val dateGroups = repository.getRecords().toDateGroups()
+            viewState = viewState.copy(dateGroups = dateGroups)
         }
     }
 
@@ -21,7 +20,7 @@ class TrackerRecordsViewModel: BaseSharedViewModel<State, Action, Event>(State()
 }
 
 data class State(
-    val records: List<TrackerRecordItem> = emptyList()
+    val dateGroups: List<TrackerDateGroup> = emptyList()
 )
 
 sealed class Action

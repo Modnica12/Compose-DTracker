@@ -23,6 +23,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(project(":common:core"))
+                implementation(project(":common:core-ui"))
                 implementation(project(":feature:tracker:data"))
                 implementation(project(":feature:tracker:presentation"))
             }

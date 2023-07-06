@@ -8,6 +8,6 @@ import view.TrackerRecordsView
 fun TrackerRecordsScreen() {
     ViewModel(factory = { TrackerRecordsViewModel() }) { viewModel ->
         val state by viewModel.viewStates().observeAsState()
-        TrackerRecordsView(recordsItems = state.records)
+        TrackerRecordsView(recordsItems = state.dateGroups)
     }
 }

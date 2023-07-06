@@ -14,6 +14,7 @@ import kotlinx.coroutines.withContext
 
 internal class KtorTrackerRecordsDataSource(private val httpClient: HttpClient) {
 
+    // try catch
     suspend fun fetchRecords(): List<TrackerRecordRemote> {
         val id = "..." // paste your id
         val response: TrackerRecordsResponse = withContext(Dispatchers.IO) {
