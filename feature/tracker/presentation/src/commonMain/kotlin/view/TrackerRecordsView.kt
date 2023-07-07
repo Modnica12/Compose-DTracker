@@ -25,32 +25,35 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import model.Record
-import model.TaskGroup
 import model.TrackerDateGroup
+import model.TrackerListItem
 import theme.Theme.colors
 import theme.Theme.typography
 
 @Composable
-fun TrackerRecordsView(recordsItems: List<TrackerDateGroup>) {
-    RecordsList(recordsItems = recordsItems)
+fun TrackerRecordsView(modifier: Modifier = Modifier, recordsItems: List<TrackerDateGroup>) {
+    RecordsList(modifier = modifier, recordsItems = recordsItems)
 }
 
 @Composable
-private fun RecordsList(recordsItems: List<TrackerDateGroup>) {
+private fun RecordsList(modifier: Modifier = Modifier, recordsItems: List<TrackerDateGroup>) {
     LazyColumn(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(color = colors.primaryBackground)
     ) {
         items(items = recordsItems, key = TrackerDateGroup::date) { item ->
             Spacer(modifier = Modifier.height(16.dp))
             DateGroupCard(dateGroup = item)
+        }
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
@@ -60,7 +63,7 @@ private fun DateGroupCard(dateGroup: TrackerDateGroup) {
     Box(
         modifier = Modifier
             .padding(horizontal = 16.dp)
-            .background(color = colors.primaryContainerBackground, shape = RoundedCornerShape(4.dp))
+            .background(color = colors.primaryContainerBackground, shape = RoundedCornerShape(8.dp))
             .padding(all = 16.dp)
             .fillMaxWidth(),
     ) {
@@ -69,8 +72,8 @@ private fun DateGroupCard(dateGroup: TrackerDateGroup) {
             Spacer(modifier = Modifier.height(16.dp))
             dateGroup.items.forEach { item ->
                 when (item) {
-                    is TaskGroup -> TrackerTaskGroup(taskGroup = item)
-                    is Record -> TrackerRecord(record = item)
+                    is TrackerListItem.TaskGroup -> TrackerTaskGroup(taskGroup = item)
+                    is TrackerListItem.Record -> TrackerRecord(record = item)
                 }
             }
         }
@@ -84,13 +87,14 @@ private fun DateHeader(date: String, totalTime: String) {
         Spacer(modifier = Modifier.weight(1f))
         Text(
             text = totalTime,
-            style = typography.trackerItemHeader.copy(color = colors.accentText)
+            style = typography.headerNormal,
+            color = colors.accentText
         )
     }
 }
 
 @Composable
-private fun TrackerTaskGroup(taskGroup: TaskGroup) {
+private fun TrackerTaskGroup(taskGroup: TrackerListItem.TaskGroup) {
     val expanded = remember { mutableStateOf(false) }
     Column(modifier = Modifier.fillMaxWidth()) {
         TaskGroupHeader(
@@ -117,7 +121,7 @@ private fun TaskGroupHeader(name: String, totalTime: String, taskGroupExpanded: 
             .fillMaxWidth()
             .padding(vertical = 16.dp)
             .clickable(onClick = onClick),
-        horizontalArrangement = Arrangement.Center
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             modifier = Modifier.rotate(iconRotationDegrees),
@@ -131,35 +135,33 @@ private fun TaskGroupHeader(name: String, totalTime: String, taskGroupExpanded: 
 }
 
 @Composable
-private fun TaskGroupRecord(record: Record) {
+private fun TaskGroupRecord(record: TrackerListItem.Record) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
             .padding(start = 32.dp),
-        horizontalArrangement = Arrangement.Center
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(modifier = Modifier.height(12.dp))
         Text(
             modifier = Modifier.weight(1f),
             text = record.description,
-            style = typography.trackerRecordItemDescription,
+            style = typography.bodyNormal,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
         Spacer(modifier = Modifier.width(12.dp))
         Text(
             text = record.duration,
-            style = typography.trackerItemHeader.copy(
-                fontWeight = FontWeight.Light,
-                color = colors.primaryContainerText
-            )
+            style = typography.headerNormal.copy(fontWeight = FontWeight.Light),
+            color = colors.primaryContainerText
         )
     }
 }
 
 @Composable
-private fun TrackerRecord(record: Record) {
+private fun TrackerRecord(record: TrackerListItem.Record) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -171,7 +173,7 @@ private fun TrackerRecord(record: Record) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = record.description,
-                style = typography.trackerRecordItemDescription,
+                style = typography.bodyNormal,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -179,7 +181,7 @@ private fun TrackerRecord(record: Record) {
         Spacer(modifier = Modifier.width(12.dp))
         Text(
             text = record.duration,
-            style = typography.trackerItemHeader.copy(
+            style = typography.headerNormal.copy(
                 fontWeight = FontWeight.Medium,
                 color = colors.primaryContainerText
             )
@@ -192,6 +194,6 @@ private fun HeaderText(modifier: Modifier = Modifier, text: String) {
     Text(
         modifier = modifier,
         text = text,
-        style = typography.trackerItemHeader.copy(color = colors.primaryContainerText)
+        style = typography.headerNormal.copy(color = colors.primaryContainerText)
     )
 }

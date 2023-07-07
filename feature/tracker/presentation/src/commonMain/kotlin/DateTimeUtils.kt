@@ -1,6 +1,9 @@
-
 fun String.getDate(): String {
     return split("T").firstOrNull() ?: ""
+}
+
+fun String.getTime(): String {
+    return split("T").getOrNull(1)?.split(".")?.firstOrNull() ?: ""
 }
 
 fun Int.formatDuration(): String {

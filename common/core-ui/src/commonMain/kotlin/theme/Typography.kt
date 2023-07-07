@@ -6,18 +6,28 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
 data class TrackerTypography(
-    val trackerItemHeader: TextStyle,
-    val trackerRecordItemDescription: TextStyle
+    val headerMedium: TextStyle,
+    val headerNormal: TextStyle,
+    val bodyNormal: TextStyle,
+    val bodySmall: TextStyle
 )
 
 internal val defaultTypography = TrackerTypography(
-    trackerItemHeader = TextStyle(
+    headerMedium = TextStyle(
+        fontWeight = FontWeight.Medium,
+        fontSize = 24.sp
+    ),
+    headerNormal = TextStyle(
         fontWeight = FontWeight.Medium,
         fontSize = 20.sp
     ),
-    trackerRecordItemDescription = TextStyle(
+    bodyNormal = TextStyle(
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp
+    ),
+    bodySmall = TextStyle(
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp
     )
 )
 
