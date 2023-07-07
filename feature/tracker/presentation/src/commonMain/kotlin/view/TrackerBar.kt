@@ -30,24 +30,24 @@ fun TrackerBar(recordDetails: TrackerRecordDetails) {
             Text(
                 text = recordDetails.duration ?: "00:00:00",
                 style = typography.headerMedium,
-                color = colors.primaryContainerText
+                color = colors.onPrimaryContainerText
             )
             Text(
                 text = recordDetails.task ?: "",
                 style = typography.headerNormal,
-                color = colors.primaryContainerText
+                color = colors.onPrimaryContainerText
             )
             Text(
                 text = recordDetails.description ?: "",
                 style = typography.bodyNormal,
-                color = colors.primaryContainerText
+                color = colors.onPrimaryContainerText
             )
         }
         Spacer(modifier = Modifier.width(dimens.large))
         Text(
             text = recordDetails.activity ?: "None",
             style = typography.bodySmall,
-            color = colors.accentText
+            color = colors.accent
         )
     }
 }

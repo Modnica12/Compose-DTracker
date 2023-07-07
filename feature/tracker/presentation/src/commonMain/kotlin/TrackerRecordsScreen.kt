@@ -49,7 +49,7 @@ private fun TrackerButton(isTracking: Boolean, onClick: () -> Unit) {
         Crossfade(targetState = isTracking) {
             Icon(
                 imageVector = if (isTracking) Icons.Default.Done else Icons.Default.PlayArrow,
-                tint = colors.onAccentBackground,
+                tint = colors.onAccent,
                 contentDescription = "start or stop tracker"
             )
         }

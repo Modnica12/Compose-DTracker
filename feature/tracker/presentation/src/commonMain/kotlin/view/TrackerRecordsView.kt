@@ -87,7 +87,7 @@ private fun DateHeader(date: String, totalTime: String) {
         Text(
             text = totalTime,
             style = typography.headerNormal,
-            color = colors.accentText
+            color = colors.accent
         )
     }
 }
@@ -159,7 +159,7 @@ private fun TaskGroupRecord(record: TrackerListItem.Record) {
         Text(
             text = record.duration,
             style = typography.headerNormal.copy(fontWeight = FontWeight.Light),
-            color = colors.primaryContainerText
+            color = colors.onPrimaryContainerText
         )
     }
 }
@@ -187,7 +187,7 @@ private fun TrackerRecord(record: TrackerListItem.Record) {
             text = record.duration,
             style = typography.headerNormal.copy(
                 fontWeight = FontWeight.Medium,
-                color = colors.primaryContainerText
+                color = colors.onPrimaryContainerText
             )
         )
     }
@@ -198,6 +198,6 @@ private fun HeaderText(modifier: Modifier = Modifier, text: String) {
     Text(
         modifier = modifier,
         text = text,
-        style = typography.headerNormal.copy(color = colors.primaryContainerText)
+        style = typography.headerNormal.copy(color = colors.onPrimaryContainerText)
     )
 }
