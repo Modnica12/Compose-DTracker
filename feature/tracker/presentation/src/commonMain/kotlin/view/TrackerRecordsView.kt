@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -30,10 +28,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import model.TrackerDateGroup
 import model.TrackerListItem
 import theme.Theme.colors
+import theme.Theme.dimens
+import theme.Theme.shapes
 import theme.Theme.typography
 
 @Composable
@@ -49,11 +48,11 @@ private fun RecordsList(modifier: Modifier = Modifier, recordsItems: List<Tracke
             .background(color = colors.primaryBackground)
     ) {
         items(items = recordsItems, key = TrackerDateGroup::date) { item ->
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(dimens.medium))
             DateGroupCard(dateGroup = item)
         }
         item {
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(dimens.medium))
         }
     }
 }
@@ -62,14 +61,14 @@ private fun RecordsList(modifier: Modifier = Modifier, recordsItems: List<Tracke
 private fun DateGroupCard(dateGroup: TrackerDateGroup) {
     Box(
         modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .background(color = colors.primaryContainerBackground, shape = RoundedCornerShape(8.dp))
-            .padding(all = 16.dp)
+            .padding(horizontal = dimens.medium)
+            .background(color = colors.primaryContainerBackground, shape = shapes.roundedDefault)
+            .padding(all = dimens.medium)
             .fillMaxWidth(),
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             DateHeader(date = dateGroup.date, totalTime = dateGroup.totalTime)
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(dimens.medium))
             dateGroup.items.forEach { item ->
                 when (item) {
                     is TrackerListItem.TaskGroup -> TrackerTaskGroup(taskGroup = item)
@@ -114,12 +113,17 @@ private fun TrackerTaskGroup(taskGroup: TrackerListItem.TaskGroup) {
 }
 
 @Composable
-private fun TaskGroupHeader(name: String, totalTime: String, taskGroupExpanded: Boolean, onClick: () -> Unit) {
+private fun TaskGroupHeader(
+    name: String,
+    totalTime: String,
+    taskGroupExpanded: Boolean,
+    onClick: () -> Unit
+) {
     val iconRotationDegrees by animateFloatAsState(targetValue = if (taskGroupExpanded) 90f else 0f)
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 16.dp)
+            .padding(vertical = dimens.medium)
             .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -129,7 +133,7 @@ private fun TaskGroupHeader(name: String, totalTime: String, taskGroupExpanded: 
             contentDescription = null
         )
         HeaderText(modifier = Modifier.weight(1f), text = name.ifEmpty { "Задача не выбрана" })
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(dimens.normal))
         HeaderText(text = totalTime)
     }
 }
@@ -139,11 +143,11 @@ private fun TaskGroupRecord(record: TrackerListItem.Record) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
-            .padding(start = 32.dp),
+            .padding(vertical = dimens.default)
+            .padding(start = dimens.extraLarge),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(dimens.normal))
         Text(
             modifier = Modifier.weight(1f),
             text = record.description,
@@ -151,7 +155,7 @@ private fun TaskGroupRecord(record: TrackerListItem.Record) {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(dimens.normal))
         Text(
             text = record.duration,
             style = typography.headerNormal.copy(fontWeight = FontWeight.Light),
@@ -165,12 +169,12 @@ private fun TrackerRecord(record: TrackerListItem.Record) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
+            .padding(vertical = dimens.default)
     ) {
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(dimens.normal))
         Column(modifier = Modifier.weight(1f)) {
             HeaderText(text = record.task.ifEmpty { record.project })
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(dimens.default))
             Text(
                 text = record.description,
                 style = typography.bodyNormal,
@@ -178,7 +182,7 @@ private fun TrackerRecord(record: TrackerListItem.Record) {
                 overflow = TextOverflow.Ellipsis
             )
         }
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(dimens.normal))
         Text(
             text = record.duration,
             style = typography.headerNormal.copy(

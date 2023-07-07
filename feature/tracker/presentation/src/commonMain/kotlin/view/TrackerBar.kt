@@ -7,14 +7,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import model.TrackerRecordDetails
 import theme.Theme.colors
+import theme.Theme.dimens
+import theme.Theme.shapes
 import theme.Theme.typography
 
 @Composable
@@ -22,8 +22,8 @@ fun TrackerBar(recordDetails: TrackerRecordDetails) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = colors.primaryContainerBackground, shape = RoundedCornerShape(8.dp))
-            .padding(8.dp),
+            .background(color = colors.primaryContainerBackground, shape = shapes.roundedDefault)
+            .padding(dimens.default),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.fillMaxWidth().weight(1f)) {
@@ -43,7 +43,7 @@ fun TrackerBar(recordDetails: TrackerRecordDetails) {
                 color = colors.primaryContainerText
             )
         }
-        Spacer(modifier = Modifier.width(24.dp))
+        Spacer(modifier = Modifier.width(dimens.large))
         Text(
             text = recordDetails.activity ?: "None",
             style = typography.bodySmall,

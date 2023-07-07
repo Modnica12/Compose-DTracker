@@ -11,10 +11,10 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.adeo.kviewmodel.compose.ViewModel
 import com.adeo.kviewmodel.compose.observeAsState
 import theme.Theme.colors
+import theme.Theme.dimens
 import view.TrackerBar
 import view.TrackerRecordsView
 
@@ -35,7 +35,7 @@ fun TrackerRecordsScreen() {
             },
             content = {
                 TrackerRecordsView(
-                    modifier = Modifier.padding(bottom = it.calculateBottomPadding() - 8.dp),
+                    modifier = Modifier.padding(bottom = it.calculateBottomPadding() - dimens.default),
                     recordsItems = state.dateGroups
                 )
             }

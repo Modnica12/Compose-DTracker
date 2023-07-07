@@ -8,6 +8,8 @@ fun AppTheme(content: @Composable () -> Unit) {
     CompositionLocalProvider(
         LocalColorProvider provides defaultPalette,
         LocalTypographyProvider provides defaultTypography,
+        LocalShapeProvider provides defaultShapes,
+        LocalDimenProvider provides defaultDimens,
         content = content
     )
 }
@@ -18,6 +20,14 @@ object Theme {
         get() = LocalColorProvider.current
 
     val typography: TrackerTypography
-    @Composable
-    get() = LocalTypographyProvider.current
+        @Composable
+        get() = LocalTypographyProvider.current
+
+    val shapes: TrackerShapes
+        @Composable
+        get() = LocalShapeProvider.current
+
+    val dimens: TrackerDimens
+        @Composable
+        get() = LocalDimenProvider.current
 }
