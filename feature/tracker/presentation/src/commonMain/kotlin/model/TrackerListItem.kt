@@ -1,6 +1,7 @@
 package model
 
 import formatDuration
+import getDate
 
 sealed class TrackerListItem {
 
@@ -16,7 +17,9 @@ sealed class TrackerListItem {
         val name: String,
         val project: String,
         val totalTime: String,
-        val records: List<Record>
+        val date: String,
+        val records: List<Record>,
+        val isExpanded: Boolean
     ): TrackerListItem()
 }
 
@@ -34,5 +37,7 @@ fun List<TrackerRecord>.mapToTaskGroup(): TrackerListItem.TaskGroup =
         name = firstOrNull()?.task?.name ?: "",
         project = firstOrNull()?.project?.key ?: "",
         totalTime = sumOf { item -> item.duration }.formatDuration(),
-        records = map { it.toPresentation() }
+        date = firstOrNull()?.start?.getDate() ?: "",
+        records = map { it.toPresentation() },
+        isExpanded = false
     )

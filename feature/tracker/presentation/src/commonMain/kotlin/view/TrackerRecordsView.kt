@@ -21,8 +21,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -36,12 +34,24 @@ import theme.Theme.shapes
 import theme.Theme.typography
 
 @Composable
-fun TrackerRecordsView(modifier: Modifier = Modifier, recordsItems: List<TrackerDateGroup>) {
-    RecordsList(modifier = modifier, recordsItems = recordsItems)
+fun TrackerRecordsView(
+    modifier: Modifier = Modifier,
+    recordsItems: List<TrackerDateGroup>,
+    onTaskGroupClick: (TrackerListItem.TaskGroup) -> Unit
+) {
+    RecordsList(
+        modifier = modifier,
+        recordsItems = recordsItems,
+        onTaskGroupClick = onTaskGroupClick
+    )
 }
 
 @Composable
-private fun RecordsList(modifier: Modifier = Modifier, recordsItems: List<TrackerDateGroup>) {
+private fun RecordsList(
+    modifier: Modifier = Modifier,
+    recordsItems: List<TrackerDateGroup>,
+    onTaskGroupClick: (TrackerListItem.TaskGroup) -> Unit
+) {
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
@@ -49,7 +59,7 @@ private fun RecordsList(modifier: Modifier = Modifier, recordsItems: List<Tracke
     ) {
         items(items = recordsItems, key = TrackerDateGroup::date) { item ->
             Spacer(modifier = Modifier.height(dimens.medium))
-            DateGroupCard(dateGroup = item)
+            DateGroupCard(dateGroup = item, onTaskGroupClick = onTaskGroupClick)
         }
         item {
             Spacer(modifier = Modifier.height(dimens.medium))
@@ -58,7 +68,10 @@ private fun RecordsList(modifier: Modifier = Modifier, recordsItems: List<Tracke
 }
 
 @Composable
-private fun DateGroupCard(dateGroup: TrackerDateGroup) {
+private fun DateGroupCard(
+    dateGroup: TrackerDateGroup,
+    onTaskGroupClick: (TrackerListItem.TaskGroup) -> Unit
+) {
     Box(
         modifier = Modifier
             .padding(horizontal = dimens.medium)
@@ -71,7 +84,11 @@ private fun DateGroupCard(dateGroup: TrackerDateGroup) {
             Spacer(modifier = Modifier.height(dimens.medium))
             dateGroup.items.forEach { item ->
                 when (item) {
-                    is TrackerListItem.TaskGroup -> TrackerTaskGroup(taskGroup = item)
+                    is TrackerListItem.TaskGroup -> TrackerTaskGroup(
+                        taskGroup = item,
+                        onClick = onTaskGroupClick
+                    )
+
                     is TrackerListItem.Record -> TrackerRecord(record = item)
                 }
             }
@@ -93,16 +110,18 @@ private fun DateHeader(date: String, totalTime: String) {
 }
 
 @Composable
-private fun TrackerTaskGroup(taskGroup: TrackerListItem.TaskGroup) {
-    val expanded = remember { mutableStateOf(false) }
+private fun TrackerTaskGroup(
+    taskGroup: TrackerListItem.TaskGroup,
+    onClick: (TrackerListItem.TaskGroup) -> Unit
+) {
     Column(modifier = Modifier.fillMaxWidth()) {
         TaskGroupHeader(
             name = taskGroup.name,
             totalTime = taskGroup.totalTime,
-            taskGroupExpanded = expanded.value,
-            onClick = { expanded.value = !expanded.value }
+            taskGroupExpanded = taskGroup.isExpanded,
+            onClick = { onClick(taskGroup) }
         )
-        AnimatedVisibility(visible = expanded.value) {
+        AnimatedVisibility(visible = taskGroup.isExpanded) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 taskGroup.records.forEach { record ->
                     TaskGroupRecord(record = record)

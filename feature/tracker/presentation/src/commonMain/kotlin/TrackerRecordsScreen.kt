@@ -33,10 +33,11 @@ fun TrackerRecordsScreen() {
                     onClick = { viewModel.obtainEvent(Event.TrackerButtonClicked) }
                 )
             },
-            content = {
+            content = { paddingValues ->
                 TrackerRecordsView(
-                    modifier = Modifier.padding(bottom = it.calculateBottomPadding() - dimens.default),
-                    recordsItems = state.dateGroups
+                    modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding() - dimens.default),
+                    recordsItems = state.dateGroups,
+                    onTaskGroupClick = { viewModel.obtainEvent(Event.TaskGroupClicked(taskGroup = it)) }
                 )
             }
         )
