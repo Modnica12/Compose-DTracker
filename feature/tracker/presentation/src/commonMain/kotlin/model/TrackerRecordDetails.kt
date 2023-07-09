@@ -13,6 +13,9 @@ data class TrackerRecordDetails(
     val duration: String?,
 ) {
 
+    val isTracking: Boolean
+        get() = !duration.isNullOrEmpty()
+
     companion object {
         val default = TrackerRecordDetails(
             id = null,

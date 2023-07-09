@@ -33,14 +33,13 @@ class TrackerRecordsViewModel : BaseSharedViewModel<State, Action, Event>(State(
         when (viewEvent) {
             is Event.TrackerButtonClicked -> trackerButtonClicked()
             is Event.TaskGroupClicked -> taskGroupClicked(viewEvent.taskGroup)
+            is Event.BottomBarClicked -> bottomBarClicked()
         }
     }
 
     private fun trackerButtonClicked() {
-        if (viewState.currentRecord.duration != null) {
+        if (viewState.currentRecord.isTracking) {
             stopTracker()
-        } else {
-            startTracker()
         }
     }
 
@@ -64,6 +63,12 @@ class TrackerRecordsViewModel : BaseSharedViewModel<State, Action, Event>(State(
         return if (this is TrackerListItem.TaskGroup && name == taskName && taskProject == taskProject) {
             transform(this)
         } else this
+    }
+
+    private fun bottomBarClicked() {
+        if (!viewState.currentRecord.isTracking) {
+            startTracker()
+        }
     }
 
     private fun startTracker(startDuration: Int = 0) {
@@ -100,6 +105,8 @@ sealed class Action
 sealed interface Event {
 
     object TrackerButtonClicked : Event
+
+    object BottomBarClicked: Event
 
     data class TaskGroupClicked(val taskGroup: TrackerListItem.TaskGroup) : Event
 }

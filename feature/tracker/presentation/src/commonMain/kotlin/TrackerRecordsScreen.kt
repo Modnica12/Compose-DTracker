@@ -1,13 +1,15 @@
-import androidx.compose.animation.Crossfade
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.FabPosition
 import androidx.compose.material.FloatingActionButton
-import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -15,27 +17,33 @@ import com.adeo.kviewmodel.compose.ViewModel
 import com.adeo.kviewmodel.compose.observeAsState
 import theme.Theme.colors
 import theme.Theme.dimens
-import view.TrackerBar
+import theme.Theme.shapes
+import view.TrackerBottomBar
 import view.TrackerRecordsView
 
 @Composable
 fun TrackerRecordsScreen() {
     ViewModel(factory = { TrackerRecordsViewModel() }) { viewModel ->
         val state by viewModel.viewStates().observeAsState()
+        val tracking = state.currentRecord.isTracking
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             floatingActionButtonPosition = FabPosition.End,
-            isFloatingActionButtonDocked = true,
-            bottomBar = { TrackerBar(recordDetails = state.currentRecord) },
             floatingActionButton = {
                 TrackerButton(
-                    isTracking = state.currentRecord.duration != null,
+                    tracking = tracking,
                     onClick = { viewModel.obtainEvent(Event.TrackerButtonClicked) }
                 )
             },
+            bottomBar = {
+                TrackerBottomBar(
+                    recordDetails = state.currentRecord,
+                    tracking = tracking,
+                    onStartClick = { viewModel.obtainEvent(Event.BottomBarClicked) })
+            },
             content = { paddingValues ->
                 TrackerRecordsView(
-                    modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding() - dimens.default),
+                    modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
                     recordsItems = state.dateGroups,
                     onTaskGroupClick = { viewModel.obtainEvent(Event.TaskGroupClicked(taskGroup = it)) }
                 )
@@ -44,14 +52,22 @@ fun TrackerRecordsScreen() {
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
-private fun TrackerButton(isTracking: Boolean, onClick: () -> Unit) {
-    FloatingActionButton(backgroundColor = colors.accentBackground, onClick = onClick) {
-        Crossfade(targetState = isTracking) {
-            Icon(
-                imageVector = if (isTracking) Icons.Default.Done else Icons.Default.PlayArrow,
-                tint = colors.onAccent,
-                contentDescription = "start or stop tracker"
+private fun TrackerButton(tracking: Boolean, onClick: () -> Unit) {
+    AnimatedVisibility(
+        visible = tracking,
+        enter = scaleIn(),
+        exit = scaleOut(),
+    ) {
+        FloatingActionButton(
+            backgroundColor = colors.primaryContainerBackground,
+            onClick = onClick
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(dimens.medium)
+                    .background(color = colors.accent, shape = shapes.roundedSmall)
             )
         }
     }

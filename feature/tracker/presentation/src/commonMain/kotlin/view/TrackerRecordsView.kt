@@ -74,7 +74,7 @@ private fun DateGroupCard(
 ) {
     Box(
         modifier = Modifier
-            .padding(horizontal = dimens.medium)
+            .padding(horizontal = dimens.normal)
             .background(color = colors.primaryContainerBackground, shape = shapes.roundedDefault)
             .padding(all = dimens.medium)
             .fillMaxWidth(),

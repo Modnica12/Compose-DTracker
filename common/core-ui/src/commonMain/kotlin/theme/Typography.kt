@@ -6,6 +6,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
 data class TrackerTypography(
+    val headerLarge: TextStyle,
     val headerMedium: TextStyle,
     val headerNormal: TextStyle,
     val bodyNormal: TextStyle,
@@ -13,6 +14,10 @@ data class TrackerTypography(
 )
 
 internal val defaultTypography = TrackerTypography(
+    headerLarge = TextStyle(
+        fontWeight = FontWeight.Medium,
+        fontSize = 32.sp
+    ),
     headerMedium = TextStyle(
         fontWeight = FontWeight.Medium,
         fontSize = 24.sp
