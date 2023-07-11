@@ -24,8 +24,18 @@ kotlin {
             dependencies {
                 implementation(project(":common:core"))
                 implementation(project(":common:core-ui"))
+                implementation(project(":common:core-utils"))
                 implementation(project(":feature:tracker:data"))
                 implementation(project(":feature:tracker:presentation"))
+
+                implementation(libs.odessey.core)
+                implementation(libs.odessey.compose)
+            }
+        }
+
+        androidMain {
+            dependencies {
+                implementation(libs.kviewmodel.odessey)
             }
         }
     }

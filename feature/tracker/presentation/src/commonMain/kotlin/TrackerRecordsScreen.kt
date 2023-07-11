@@ -15,6 +15,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import com.adeo.kviewmodel.compose.ViewModel
 import com.adeo.kviewmodel.compose.observeAsState
+import ru.alexgladkov.odyssey.compose.extensions.present
+import ru.alexgladkov.odyssey.compose.local.LocalRootController
+import ru.alexgladkov.odyssey.compose.navigation.modal_navigation.ModalSheetConfiguration
 import theme.Theme.colors
 import theme.Theme.dimens
 import theme.Theme.shapes
@@ -23,6 +26,8 @@ import view.TrackerRecordsView
 
 @Composable
 fun TrackerRecordsScreen() {
+    val rootController = LocalRootController.current
+    val modalController = rootController.findModalController()
     ViewModel(factory = { TrackerRecordsViewModel() }) { viewModel ->
         val state by viewModel.viewStates().observeAsState()
         val tracking = state.currentRecord.isTracking
@@ -39,7 +44,13 @@ fun TrackerRecordsScreen() {
                 TrackerBottomBar(
                     recordDetails = state.currentRecord,
                     tracking = tracking,
-                    onStartClick = { viewModel.obtainEvent(Event.BottomBarClicked) })
+                    onStartClick = {
+                        val modalSheetConfiguration = ModalSheetConfiguration(maxHeight = 0.95f, cornerRadius = 16)
+                        modalController.present(modalSheetConfiguration) { key ->
+
+                        }
+                        viewModel.obtainEvent(Event.BottomBarClicked)
+                    })
             },
             content = { paddingValues ->
                 TrackerRecordsView(
