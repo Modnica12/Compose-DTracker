@@ -22,4 +22,4 @@ val defaultDimens = TrackerDimens(
     extraLarge = 32.dp
 )
 
-val LocalDimenProvider = staticCompositionLocalOf<TrackerDimens> { error("No default implementation") }
+val LocalDimenProvider = staticCompositionLocalOf<TrackerDimens> { error("No dimen provider") }

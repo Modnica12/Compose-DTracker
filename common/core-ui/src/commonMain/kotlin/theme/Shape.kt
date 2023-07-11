@@ -14,4 +14,4 @@ val defaultShapes = TrackerShapes(
     roundedSmall = RoundedCornerShape(defaultDimens.small)
 )
 
-val LocalShapeProvider = staticCompositionLocalOf<TrackerShapes> { error("No default implementation") }
+val LocalShapeProvider = staticCompositionLocalOf<TrackerShapes> { error("No shape provider") }

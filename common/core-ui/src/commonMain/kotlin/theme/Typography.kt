@@ -36,4 +36,4 @@ internal val defaultTypography = TrackerTypography(
     )
 )
 
-internal val LocalTypographyProvider = staticCompositionLocalOf<TrackerTypography> { error("No default implementation") }
+internal val LocalTypographyProvider = staticCompositionLocalOf<TrackerTypography> { error("No typography provider") }

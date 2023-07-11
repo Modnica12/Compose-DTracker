@@ -23,4 +23,4 @@ internal val defaultPalette = TrackerColors(
     accentContainer = Color(0xFFEECCCC)
 )
 
-val LocalColorProvider = staticCompositionLocalOf<TrackerColors> { error("No default implementation") }
+val LocalColorProvider = staticCompositionLocalOf<TrackerColors> { error("No color provider") }
