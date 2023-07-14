@@ -1,15 +1,23 @@
+package list
+
+import TrackerRecordsRepository
 import com.adeo.kviewmodel.BaseSharedViewModel
 import di.getKoinInstance
+import formatDuration
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import model.TrackerDateGroup
+import list.model.TrackerRecordsAction
+import list.model.TrackerRecordsEvent
+import list.model.TrackerRecordsState
 import model.TrackerListItem
-import model.TrackerRecordDetails
+import model.details.TrackerRecordDetails
+import model.details.toDetails
 import model.toDateGroups
-import model.toDetails
 
-class TrackerRecordsViewModel : BaseSharedViewModel<State, Action, Event>(State()) {
+class TrackerRecordsViewModel : BaseSharedViewModel<TrackerRecordsState, TrackerRecordsAction, TrackerRecordsEvent>(
+    initialState = TrackerRecordsState()
+) {
 
     private val repository: TrackerRecordsRepository = getKoinInstance()
 
@@ -29,11 +37,11 @@ class TrackerRecordsViewModel : BaseSharedViewModel<State, Action, Event>(State(
         }
     }
 
-    override fun obtainEvent(viewEvent: Event) {
+    override fun obtainEvent(viewEvent: TrackerRecordsEvent) {
         when (viewEvent) {
-            is Event.TrackerButtonClicked -> trackerButtonClicked()
-            is Event.TaskGroupClicked -> taskGroupClicked(viewEvent.taskGroup)
-            is Event.BottomBarClicked -> bottomBarClicked()
+            is TrackerRecordsEvent.TrackerButtonClicked -> trackerButtonClicked()
+            is TrackerRecordsEvent.TaskGroupClicked -> taskGroupClicked(viewEvent.taskGroup)
+            is TrackerRecordsEvent.StartClicked -> startClicked()
         }
     }
 
@@ -65,7 +73,7 @@ class TrackerRecordsViewModel : BaseSharedViewModel<State, Action, Event>(State(
         } else this
     }
 
-    private fun bottomBarClicked() {
+    private fun startClicked() {
         if (!viewState.currentRecord.isTracking) {
             startTracker()
         }
@@ -93,20 +101,4 @@ class TrackerRecordsViewModel : BaseSharedViewModel<State, Action, Event>(State(
             viewState = viewState.copy(currentRecord = TrackerRecordDetails.default)
         }
     }
-}
-
-data class State(
-    val dateGroups: List<TrackerDateGroup> = emptyList(),
-    val currentRecord: TrackerRecordDetails = TrackerRecordDetails.default
-)
-
-sealed class Action
-
-sealed interface Event {
-
-    object TrackerButtonClicked : Event
-
-    object BottomBarClicked: Event
-
-    data class TaskGroupClicked(val taskGroup: TrackerListItem.TaskGroup) : Event
 }

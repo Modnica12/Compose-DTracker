@@ -1,6 +1,6 @@
 package navigation
 
-import TrackerRecordsScreen
+import list.TrackerRecordsScreen
 import ru.alexgladkov.odyssey.compose.extensions.flow
 import ru.alexgladkov.odyssey.compose.extensions.screen
 import ru.alexgladkov.odyssey.compose.navigation.RootComposeBuilder

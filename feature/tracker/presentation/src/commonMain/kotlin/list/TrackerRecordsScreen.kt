@@ -1,3 +1,5 @@
+package list
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.scaleIn
@@ -15,14 +17,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import com.adeo.kviewmodel.compose.ViewModel
 import com.adeo.kviewmodel.compose.observeAsState
-import ru.alexgladkov.odyssey.compose.extensions.present
+import list.model.TrackerRecordsEvent
+import list.view.TrackerBottomBar
+import list.view.TrackerRecordsView
 import ru.alexgladkov.odyssey.compose.local.LocalRootController
 import ru.alexgladkov.odyssey.compose.navigation.modal_navigation.ModalSheetConfiguration
 import theme.Theme.colors
 import theme.Theme.dimens
 import theme.Theme.shapes
-import view.TrackerBottomBar
-import view.TrackerRecordsView
+import list.view.TrackerBottomBar
+import view.TrackerDetailsView
+import list.view.TrackerRecordsView
 
 @Composable
 fun TrackerRecordsScreen() {
@@ -37,26 +42,20 @@ fun TrackerRecordsScreen() {
             floatingActionButton = {
                 TrackerButton(
                     tracking = tracking,
-                    onClick = { viewModel.obtainEvent(Event.TrackerButtonClicked) }
+                    onClick = { viewModel.obtainEvent(TrackerRecordsEvent.TrackerButtonClicked) }
                 )
             },
             bottomBar = {
                 TrackerBottomBar(
                     recordDetails = state.currentRecord,
                     tracking = tracking,
-                    onStartClick = {
-                        val modalSheetConfiguration = ModalSheetConfiguration(maxHeight = 0.95f, cornerRadius = 16)
-                        modalController.present(modalSheetConfiguration) { key ->
-
-                        }
-                        viewModel.obtainEvent(Event.BottomBarClicked)
-                    })
+                    onStartClick = { viewModel.obtainEvent(TrackerRecordsEvent.StartClicked) })
             },
             content = { paddingValues ->
                 TrackerRecordsView(
                     modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
                     recordsItems = state.dateGroups,
-                    onTaskGroupClick = { viewModel.obtainEvent(Event.TaskGroupClicked(taskGroup = it)) }
+                    onTaskGroupClick = { viewModel.obtainEvent(TrackerRecordsEvent.TaskGroupClicked(taskGroup = it)) }
                 )
             }
         )

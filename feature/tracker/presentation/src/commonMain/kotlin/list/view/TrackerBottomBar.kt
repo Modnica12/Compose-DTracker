@@ -1,4 +1,4 @@
-package view
+package list.view
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
@@ -21,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import model.TrackerRecordDetails
+import model.details.TrackerRecordDetails
 import theme.Theme.colors
 import theme.Theme.dimens
 import theme.Theme.shapes
