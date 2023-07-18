@@ -1,6 +1,7 @@
 plugins {
     `android-setup`
     `multiplatform-setup`
+    kotlin("plugin.serialization")
 }
 
 android {

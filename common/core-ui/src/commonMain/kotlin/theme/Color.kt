@@ -10,7 +10,8 @@ data class TrackerColors(
     val primaryContainerBorder: Color,
     val onPrimaryContainerText: Color,
     val accent: Color,
-    val accentContainer: Color
+    val accentContainer: Color,
+    val errorColor: Color,
 )
 
 internal val defaultPalette = TrackerColors(
@@ -20,7 +21,8 @@ internal val defaultPalette = TrackerColors(
     primaryContainerBorder = Color(0xFFD2D2D2),
     onPrimaryContainerText = Color(0xFF0D0D0D),
     accent = Color(0xFFD00000),
-    accentContainer = Color(0xFFEECCCC)
+    accentContainer = Color(0xFFEECCCC),
+    errorColor = Color(0xFF9D0000)
 )
 
 val LocalColorProvider = staticCompositionLocalOf<TrackerColors> { error("No color provider") }

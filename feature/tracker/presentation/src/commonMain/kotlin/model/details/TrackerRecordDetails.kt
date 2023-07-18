@@ -1,12 +1,13 @@
-package model
+package model.details
 
 import formatDuration
 import getTime
+import model.TrackerRecord
 
 data class TrackerRecordDetails(
     val id: String?,
-    val project: String?,
-    val activity: String?,
+    val project: TrackerProject?,
+    val activity: ActivityPresentation?,
     val task: String?,
     val description: String?,
     val start: String?,
@@ -32,9 +33,9 @@ data class TrackerRecordDetails(
 fun TrackerRecord.toDetails(): TrackerRecordDetails =
     TrackerRecordDetails(
         id = id,
-        project = project.key,
-        activity = activity?.name,
-        task = task.name,
+        project = project?.toPresentation(),
+        activity = activity?.toPresentation(),
+        task = task?.name,
         description = description,
         start = start.getTime(),
         duration = duration.formatDuration()

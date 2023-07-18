@@ -1,10 +1,12 @@
-package model
+package models
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-internal data class TrackerRecordsResponse(
+data class ListResponse<T>(
+    @SerialName("count")
+    val count: Int? = null,
     @SerialName("items")
-    val items: List<TrackerRecordRemote>
+    val items: List<T>
 )
