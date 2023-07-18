@@ -13,6 +13,7 @@ import model.TrackerProjectRemote
 import model.TrackerRecordRemote
 import model.TrackerRecordRequestBody
 import model.TrackerRecordsRequestBody
+import model.TrackerTaskHintRemote
 import models.ListResponse
 
 internal class KtorTrackerRecordsDataSource(private val httpClient: HttpClient) {
@@ -60,6 +61,23 @@ internal class KtorTrackerRecordsDataSource(private val httpClient: HttpClient) 
             parameter(key = "key", value = key)
         }
     }.body()
+
+    suspend fun getTasks(projectIds: Int, pattern: String, limit: Int = 10): List<TrackerTaskHintRemote> =
+        httpClient.get("dtracker/search-task-hint") {
+            url {
+                parameter(key = "project_ids", value = projectIds)
+                parameter(key = "pattern", value = pattern)
+                parameter(key = "limit", value = limit)
+            }
+        }.body()
+
+    suspend fun getDescriptions(pattern: String, limit: Int = 10): List<String> =
+        httpClient.get("dtracker/search-records-hint") {
+            url {
+                parameter(key = "pattern", value = pattern)
+                parameter(key = "limit", value = limit)
+            }
+        }.body()
 
     suspend fun getActivities(): ListResponse<TrackerActivityRemote> =
         httpClient.get("dtracker/activities").body()

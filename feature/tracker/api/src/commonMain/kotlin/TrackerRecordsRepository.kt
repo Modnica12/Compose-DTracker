@@ -2,6 +2,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import model.TrackerActivity
 import model.TrackerProject
 import model.TrackerRecord
+import model.TrackerTaskHint
 
 interface TrackerRecordsRepository {
 
@@ -27,6 +28,10 @@ interface TrackerRecordsRepository {
     suspend fun updateRecord(id: String, trackerRecord: TrackerRecord): Result<TrackerRecord>
 
     suspend fun getProjects(key: String): Result<List<TrackerProject>>
+
+    suspend fun getTasks(projectIds: Int, pattern: String, limit: Int = 10): Result<List<TrackerTaskHint>>
+
+    suspend fun getDescriptions(pattern: String, limit: Int = 10): Result<List<String>>
 
     suspend fun getActivities(): Result<List<TrackerActivity>>
 }

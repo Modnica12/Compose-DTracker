@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -20,7 +19,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import components.ClickableTag
@@ -28,6 +26,7 @@ import components.FullWidthTextField
 import components.PopUp
 import model.TrackerActivity
 import model.TrackerProject
+import model.TrackerTaskHint
 import theme.Theme.colors
 import theme.Theme.dimens
 import theme.Theme.shapes
@@ -41,12 +40,16 @@ fun TrackerDetailsView(
     description: String,
     start: String,
     projectsSuggestions: List<TrackerProject>,
+    taskSuggestions: List<TrackerTaskHint>,
+    descriptionSuggestions: List<String>,
     activitiesList: List<TrackerActivity>,
     errorText: String? = null,
     onProjectChange: (String) -> Unit,
     onProjectSelect: (Int) -> Unit,
     onTaskChange: (String) -> Unit,
+    onTaskSelect: (TrackerTaskHint) -> Unit,
     onDescriptionChange: (String) -> Unit,
+    onDescriptionSelect: (String) -> Unit,
     onActivityClick: () -> Unit,
     onActivitySelect: (Int) -> Unit,
 ) {
@@ -66,12 +69,21 @@ fun TrackerDetailsView(
             onSelect = { project -> onProjectSelect(project.id) }
         )
         Spacer(modifier = Modifier.height(dimens.medium))
-        FullWidthTextField(value = task, placeholder = "Ключ задачи", onValueChange = onTaskChange)
+        TextFieldWithSuggestions(
+            value = task,
+            suggestions = taskSuggestions,
+            placeholder = "Ключ задачи",
+            formatSuggestion = { "$name $summary" },
+            onValueChange = onTaskChange,
+            onSelect = onTaskSelect
+        )
         Spacer(modifier = Modifier.height(dimens.medium))
-        FullWidthTextField(
+        TextFieldWithSuggestions(
             value = description,
+            suggestions = descriptionSuggestions,
             placeholder = "Описание",
-            onValueChange = onDescriptionChange
+            onValueChange = onDescriptionChange,
+            onSelect = onDescriptionSelect
         )
         Spacer(modifier = Modifier.height(dimens.medium))
         ActivitySelector(

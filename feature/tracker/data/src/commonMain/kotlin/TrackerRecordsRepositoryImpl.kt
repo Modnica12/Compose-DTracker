@@ -9,6 +9,7 @@ import model.TrackerRecordRemote
 import model.toDomain
 import model.TrackerRecord
 import model.TrackerRecordRequestBody
+import model.TrackerTaskHint
 import model.toRequestBody
 
 internal class TrackerRecordsRepositoryImpl(
@@ -96,6 +97,38 @@ internal class TrackerRecordsRepositoryImpl(
             try {
                 val projects = remoteSource.getProjects(key = key).items.map { it.toDomain() }
                 Result.success(projects)
+            } catch (exception: Exception) {
+                Result.failure(exception)
+            }
+        }
+
+    override suspend fun getTasks(
+        projectIds: Int,
+        pattern: String,
+        limit: Int
+    ): Result<List<TrackerTaskHint>> =
+        withContext(Dispatchers.IO) {
+            try {
+                val tasks = remoteSource.getTasks(
+                    projectIds = projectIds,
+                    pattern = pattern,
+                    limit = limit
+                )
+                    .map { task -> task.toDomain() }
+                Result.success(tasks)
+            } catch (exception: Exception) {
+                Result.failure(exception)
+            }
+        }
+
+    override suspend fun getDescriptions(pattern: String, limit: Int): Result<List<String>> =
+        withContext(Dispatchers.IO) {
+            try {
+                val descriptions = remoteSource.getDescriptions(
+                    pattern = pattern,
+                    limit = limit
+                )
+                Result.success(descriptions)
             } catch (exception: Exception) {
                 Result.failure(exception)
             }
