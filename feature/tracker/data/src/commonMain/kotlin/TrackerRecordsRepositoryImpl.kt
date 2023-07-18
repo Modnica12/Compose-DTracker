@@ -5,12 +5,12 @@ import kotlinx.coroutines.withContext
 import ktor.KtorTrackerRecordsDataSource
 import model.TrackerActivity
 import model.TrackerProject
-import model.TrackerRecordRemote
-import model.toDomain
+import model.response.TrackerRecordRemote
+import model.response.toDomain
 import model.TrackerRecord
-import model.TrackerRecordRequestBody
+import model.request.TrackerRecordRequestBody
 import model.TrackerTaskHint
-import model.toRequestBody
+import model.request.toRequestBody
 
 internal class TrackerRecordsRepositoryImpl(
     private val remoteSource: KtorTrackerRecordsDataSource

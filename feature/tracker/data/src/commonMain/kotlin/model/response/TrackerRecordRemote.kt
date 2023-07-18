@@ -1,7 +1,8 @@
-package model
+package model.response
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import model.TrackerRecord
 
 @Serializable
 internal data class TrackerRecordRemote(

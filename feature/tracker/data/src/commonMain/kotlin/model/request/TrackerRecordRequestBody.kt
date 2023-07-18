@@ -1,7 +1,8 @@
-package model
+package model.request
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import model.TrackerRecord
 
 @Serializable
 data class TrackerRecordRequestBody(
