@@ -1,3 +1,6 @@
 package list.model
 
-sealed class TrackerRecordsAction
+sealed interface TrackerRecordsAction {
+
+    object NavigateToDetails: TrackerRecordsAction
+}

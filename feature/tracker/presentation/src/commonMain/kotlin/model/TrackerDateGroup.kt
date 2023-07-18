@@ -13,7 +13,7 @@ fun List<TrackerRecord>.toDateGroups(): List<TrackerDateGroup> {
     val dateGroupedItems = this
         .groupBy { record -> record.start.getDate() }
         .map { (date, records) ->
-            val taskGroupedItems = records.groupBy { it.task.name }
+            val taskGroupedItems = records.groupBy { it.task?.name }
             TrackerDateGroup(
                 date = date,
                 totalTime = records.sumOf { item -> item.duration }.formatDuration(),

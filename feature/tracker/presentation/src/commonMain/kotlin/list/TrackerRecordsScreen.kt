@@ -15,26 +15,25 @@ import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import com.adeo.kviewmodel.compose.ViewModel
 import com.adeo.kviewmodel.compose.observeAsState
+import com.adeo.kviewmodel.odyssey.StoredViewModel
+import list.model.TrackerRecordsAction
 import list.model.TrackerRecordsEvent
 import list.view.TrackerBottomBar
 import list.view.TrackerRecordsView
+import navigation.NavigationTree
+import ru.alexgladkov.odyssey.compose.extensions.present
 import ru.alexgladkov.odyssey.compose.local.LocalRootController
-import ru.alexgladkov.odyssey.compose.navigation.modal_navigation.ModalSheetConfiguration
 import theme.Theme.colors
 import theme.Theme.dimens
 import theme.Theme.shapes
-import list.view.TrackerBottomBar
-import view.TrackerDetailsView
-import list.view.TrackerRecordsView
 
 @Composable
 fun TrackerRecordsScreen() {
     val rootController = LocalRootController.current
-    val modalController = rootController.findModalController()
-    ViewModel(factory = { TrackerRecordsViewModel() }) { viewModel ->
+    StoredViewModel(factory = { TrackerRecordsViewModel() }) { viewModel ->
         val state by viewModel.viewStates().observeAsState()
+        val action = viewModel.viewActions().observeAsState()
         val tracking = state.currentRecord.isTracking
         Scaffold(
             modifier = Modifier.fillMaxSize(),
@@ -49,16 +48,27 @@ fun TrackerRecordsScreen() {
                 TrackerBottomBar(
                     recordDetails = state.currentRecord,
                     tracking = tracking,
+                    onClick = { viewModel.obtainEvent(TrackerRecordsEvent.BottomBarClicked) },
                     onStartClick = { viewModel.obtainEvent(TrackerRecordsEvent.StartClicked) })
             },
             content = { paddingValues ->
                 TrackerRecordsView(
                     modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
                     recordsItems = state.dateGroups,
-                    onTaskGroupClick = { viewModel.obtainEvent(TrackerRecordsEvent.TaskGroupClicked(taskGroup = it)) }
+                    onTaskGroupClick = {
+                        viewModel.obtainEvent(TrackerRecordsEvent.TaskGroupClicked(taskGroup = it))
+                    }
                 )
             }
         )
+
+        action.value?.let { action ->
+            when (action) {
+                is TrackerRecordsAction.NavigateToDetails -> {
+                    rootController.present(NavigationTree.Tracker.Details.name)
+                }
+            }
+        }
     }
 }
 

@@ -26,8 +26,8 @@ sealed class TrackerListItem {
 fun TrackerRecord.toPresentation(): TrackerListItem.Record =
     TrackerListItem.Record(
         id = id,
-        project = project.key,
-        task = task.name,
+        project = project?.key ?: "",
+        task = task?.name ?: "",
         description = description,
         duration = duration.formatDuration()
     )

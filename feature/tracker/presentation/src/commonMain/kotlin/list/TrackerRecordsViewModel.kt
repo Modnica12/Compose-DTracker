@@ -11,6 +11,7 @@ import list.model.TrackerRecordsAction
 import list.model.TrackerRecordsEvent
 import list.model.TrackerRecordsState
 import model.TrackerListItem
+import model.TrackerRecord
 import model.details.TrackerRecordDetails
 import model.details.toDetails
 import model.toDateGroups
@@ -30,10 +31,19 @@ class TrackerRecordsViewModel : BaseSharedViewModel<TrackerRecordsState, Tracker
         }
         viewModelScope.launch {
             repository.getCurrentRecord()
-                .onSuccess { currentRecord ->
-                    viewState = viewState.copy(currentRecord = currentRecord.toDetails())
-                    startTracker(startDuration = currentRecord.duration)
+        }
+        viewModelScope.launch {
+            repository.currentRecord.collect { currentRecord ->
+                currentRecord?.let { record ->
+                    viewState = viewState.copy(currentRecord = record.toDetails())
+
+                    // fix
+                    timerJob?.cancel()
+                    timerJob = null
+
+                    startTracker(startDuration = record.duration)
                 }
+            }
         }
     }
 
@@ -42,6 +52,7 @@ class TrackerRecordsViewModel : BaseSharedViewModel<TrackerRecordsState, Tracker
             is TrackerRecordsEvent.TrackerButtonClicked -> trackerButtonClicked()
             is TrackerRecordsEvent.TaskGroupClicked -> taskGroupClicked(viewEvent.taskGroup)
             is TrackerRecordsEvent.StartClicked -> startClicked()
+            is TrackerRecordsEvent.BottomBarClicked -> bottomBarClicked()
         }
     }
 
@@ -74,8 +85,22 @@ class TrackerRecordsViewModel : BaseSharedViewModel<TrackerRecordsState, Tracker
     }
 
     private fun startClicked() {
+        repository.currentRecord.value = TrackerRecord.default
+        navigateToDetails()
         if (!viewState.currentRecord.isTracking) {
             startTracker()
+        }
+    }
+
+    private fun bottomBarClicked() {
+        navigateToDetails()
+    }
+
+    private fun navigateToDetails() {
+        withViewModelScope {
+            viewAction = TrackerRecordsAction.NavigateToDetails
+            delay(100)
+            viewAction = null
         }
     }
 

@@ -9,5 +9,7 @@ sealed interface TrackerRecordsEvent {
 
     object StartClicked : TrackerRecordsEvent
 
+    object BottomBarClicked: TrackerRecordsEvent
+
     data class TaskGroupClicked(val taskGroup: TrackerListItem.TaskGroup) : TrackerRecordsEvent
 }
