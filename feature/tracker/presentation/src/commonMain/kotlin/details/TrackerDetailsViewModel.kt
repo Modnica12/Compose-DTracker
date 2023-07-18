@@ -6,9 +6,16 @@ import details.model.TrackerDetailsAction
 import details.model.TrackerDetailsEvent
 import details.model.TrackerDetailsState
 import di.getKoinInstance
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import model.TrackerTask
 
+@OptIn(FlowPreview::class)
 class TrackerDetailsViewModel :
     BaseSharedViewModel<TrackerDetailsState, TrackerDetailsAction, TrackerDetailsEvent>(
         initialState = TrackerDetailsState()
@@ -31,6 +38,16 @@ class TrackerDetailsViewModel :
                     )
                 }
             }
+        }
+        // don't work with project text, because it updates only in viewState
+        withViewModelScope {
+            repository.currentRecord
+                .debounce(1000)
+                .distinctUntilChanged()
+                // do not trigger first initializing value set
+                .drop(1)
+                .onEach { startTracker() }
+                .collect()
         }
     }
 
@@ -61,7 +78,7 @@ class TrackerDetailsViewModel :
                     repository.currentRecord.value = currentRecord.copy(project = selectedProject)
 //                    viewState = viewState.copy(selectedProject = selectedProject)
                 }
-                startTracker()
+//                startTracker()
             }
         }
     }
@@ -71,7 +88,7 @@ class TrackerDetailsViewModel :
             repository.currentRecord.value?.let { currentRecord ->
                 val recordWithNewTask = currentRecord.copy(task = TrackerTask(name = value, onYoutrack = false))
                 repository.currentRecord.value = recordWithNewTask
-                startTracker()
+//                startTracker()
             }
         }
     }
@@ -81,7 +98,7 @@ class TrackerDetailsViewModel :
             repository.currentRecord.value?.let { currentRecord ->
                 val recordWithNewDescription = currentRecord.copy(description = value)
                 repository.currentRecord.value = recordWithNewDescription
-                startTracker()
+//                startTracker()
             }
         }
     }
@@ -99,7 +116,7 @@ class TrackerDetailsViewModel :
                 viewState.activitiesList.firstOrNull { it.id == id }?.let { selectedActivity ->
                     repository.currentRecord.value = currentRecord.copy(activity = selectedActivity)
                 }
-                startTracker()
+//                startTracker()
             }
         }
     }
