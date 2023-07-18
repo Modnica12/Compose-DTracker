@@ -1,5 +1,7 @@
 package model
 
+import utils.getDateTime
+
 data class TrackerRecord(
     val id: String,
     val project: TrackerProject?,
@@ -17,7 +19,7 @@ data class TrackerRecord(
                 project = null,
                 activity = null,
                 task = null,
-                start = "2023-07-18T08:00:00Z",
+                start = getDateTime(),
                 duration = 0,
                 description = ""
             )

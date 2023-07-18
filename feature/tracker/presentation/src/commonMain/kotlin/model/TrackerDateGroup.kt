@@ -1,7 +1,7 @@
 package model
 
-import formatDuration
-import getDate
+import utils.formatDuration
+import utils.getDate
 
 data class TrackerDateGroup(
     val date: String,

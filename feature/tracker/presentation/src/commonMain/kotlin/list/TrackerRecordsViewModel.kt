@@ -3,7 +3,7 @@ package list
 import TrackerRecordsRepository
 import com.adeo.kviewmodel.BaseSharedViewModel
 import di.getKoinInstance
-import formatDuration
+import utils.formatDuration
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

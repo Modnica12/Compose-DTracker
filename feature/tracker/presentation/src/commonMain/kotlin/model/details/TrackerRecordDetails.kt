@@ -1,7 +1,7 @@
 package model.details
 
-import formatDuration
-import getTime
+import utils.formatDuration
+import utils.getTime
 import model.TrackerRecord
 
 data class TrackerRecordDetails(

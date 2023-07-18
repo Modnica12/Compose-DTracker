@@ -1,3 +1,13 @@
+package utils
+
+expect fun getDate(): String
+
+expect fun getTime(): String
+
+fun getDateTime(): String {
+    return "${getDate()}T${getTime()}Z"
+}
+
 fun String.getDate(): String {
     return split("T").firstOrNull() ?: ""
 }
