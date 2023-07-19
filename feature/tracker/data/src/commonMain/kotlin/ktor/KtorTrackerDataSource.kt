@@ -8,15 +8,15 @@ import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.http.appendPathSegments
+import model.request.TrackerRecordRequestBody
+import model.request.TrackerRecordsRequestBody
 import model.response.TrackerActivityRemote
 import model.response.TrackerProjectRemote
 import model.response.TrackerRecordRemote
-import model.request.TrackerRecordRequestBody
-import model.request.TrackerRecordsRequestBody
 import model.response.TrackerTaskHintRemote
 import models.ListResponse
 
-internal class KtorTrackerRecordsDataSource(private val httpClient: HttpClient) {
+internal class KtorTrackerDataSource(private val httpClient: HttpClient) {
 
     // try catch
     suspend fun fetchRecords(): List<TrackerRecordRemote> {

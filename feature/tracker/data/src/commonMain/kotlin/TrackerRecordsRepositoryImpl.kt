@@ -2,18 +2,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.withContext
-import ktor.KtorTrackerRecordsDataSource
+import ktor.KtorTrackerDataSource
 import model.TrackerActivity
 import model.TrackerProject
+import model.TrackerRecord
+import model.TrackerTaskHint
+import model.request.TrackerRecordRequestBody
+import model.request.toRequestBody
 import model.response.TrackerRecordRemote
 import model.response.toDomain
-import model.TrackerRecord
-import model.request.TrackerRecordRequestBody
-import model.TrackerTaskHint
-import model.request.toRequestBody
 
 internal class TrackerRecordsRepositoryImpl(
-    private val remoteSource: KtorTrackerRecordsDataSource
+    private val remoteSource: KtorTrackerDataSource
 ) : TrackerRecordsRepository {
 
     override val currentRecord: MutableStateFlow<TrackerRecord?> = MutableStateFlow(null)

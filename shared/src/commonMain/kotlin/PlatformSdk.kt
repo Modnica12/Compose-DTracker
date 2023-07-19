@@ -1,10 +1,15 @@
+import configuration.PlatformConfiguration
 import org.koin.core.context.startKoin
 
 object PlatformSdk {
 
-    fun initialize() {
+    fun initialize(platformConfiguration: PlatformConfiguration) {
         startKoin {
-            modules(coreModule(), recordsHistoryModule())
+            modules(
+                platformModule(platformConfiguration = platformConfiguration),
+                coreModule(),
+                recordsHistoryModule()
+            )
         }
     }
 }

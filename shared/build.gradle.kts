@@ -22,7 +22,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(project(":common:core"))
+                api(project(":common:core"))
                 implementation(project(":common:core-ui"))
                 implementation(project(":common:core-utils"))
                 implementation(project(":feature:tracker:data"))
