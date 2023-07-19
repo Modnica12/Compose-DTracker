@@ -36,9 +36,12 @@ fun DropDownMenu(
                 ),
         ) {
             item {
-                Spacer(modifier = Modifier.height(dimens.normal))
+                Spacer(modifier = Modifier.height(dimens.default))
             }
             content()
+            item {
+                Spacer(modifier = Modifier.height(dimens.default))
+            }
         }
     }
 }
