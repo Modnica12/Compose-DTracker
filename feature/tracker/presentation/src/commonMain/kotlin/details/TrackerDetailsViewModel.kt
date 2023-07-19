@@ -198,7 +198,7 @@ class TrackerDetailsViewModel :
         this
             .debounce(1000)
             .distinctUntilChanged()
-            // do not trigger first initializing value set
+            // Don't trigger first initializing value set
             .drop(1)
             .onEach(onEach)
             .launchIn(viewModelScope)

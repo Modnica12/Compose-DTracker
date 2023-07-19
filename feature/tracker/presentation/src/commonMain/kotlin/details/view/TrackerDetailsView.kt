@@ -149,7 +149,7 @@ fun <T> TextFieldWithSuggestions(
         FullWidthTextField(
             modifier = Modifier
                 .onGloballyPositioned { coordinates ->
-                    //This value is used to assign to the DropDown the same width
+                    // This value is used to assign to the DropDown the same width
                     textFieldSize.value = coordinates.size.toSize()
                 }
                 .onFocusChanged { isFocused.value = it.isFocused }

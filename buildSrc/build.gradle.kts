@@ -6,7 +6,7 @@ repositories {
     google()
     gradlePluginPortal()
     mavenCentral()
-    // compose multiplatform
+    // Compose multiplatform
     maven(url = "https://maven.pkg.jetbrains.space/public/p/compose/dev")
 }
 
