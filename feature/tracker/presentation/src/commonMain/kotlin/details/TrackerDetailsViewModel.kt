@@ -91,8 +91,10 @@ class TrackerDetailsViewModel :
             is TrackerDetailsEvent.TaskSelected -> taskSelected(viewEvent.taskHint)
             is TrackerDetailsEvent.DescriptionValueChanged -> descriptionValueChanged(viewEvent.value)
             is TrackerDetailsEvent.DescriptionSelected -> descriptionSelected(viewEvent.value)
-            is TrackerDetailsEvent.ActivityClicked -> activityClicked()
+            is TrackerDetailsEvent.SelectActivityClicked -> selectActivityClicked()
             is TrackerDetailsEvent.ActivitySelected -> activitySelected(viewEvent.id)
+            TrackerDetailsEvent.CloseClicked -> closeClicked()
+            TrackerDetailsEvent.CreateClicked -> createClicked()
         }
     }
 
@@ -152,7 +154,7 @@ class TrackerDetailsViewModel :
         }
     }
 
-    private fun activityClicked() {
+    private fun selectActivityClicked() {
         withViewModelScope {
             val activities = repository.getActivities().getOrNull() ?: emptyList()
             viewState = viewState.copy(activitiesList = activities)
@@ -182,6 +184,14 @@ class TrackerDetailsViewModel :
         } ?: run {
             viewState = viewState.copy(errorMessage = "Заполните ключ проекта")
         }
+    }
+
+    private fun closeClicked() {
+        viewAction = TrackerDetailsAction.NavigateBack
+    }
+
+    private fun createClicked() {
+        viewAction = TrackerDetailsAction.NavigateBack
     }
 
     private fun <T> Flow<T>.collectTextFieldValues(onEach: suspend (T) -> Unit) {

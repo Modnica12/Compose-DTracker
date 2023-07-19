@@ -1,6 +1,5 @@
 package components
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -23,17 +22,16 @@ import kotlin.math.min
  * Copied from DropdownMenu()
  */
 @Composable
-fun PopUp(
+internal fun PopUp(
     expanded: Boolean,
     offset: DpOffset = DpOffset(0.dp, 0.dp),
-    focusable: Boolean = true,
     onDismissRequest: () -> Unit,
     content: @Composable () -> Unit
 ) {
     val expandedStates = remember { MutableTransitionState(false) }
     expandedStates.targetState = expanded
 
-    AnimatedVisibility(visible = expandedStates.currentState || expandedStates.targetState) {
+    if(expandedStates.currentState || expandedStates.targetState) {
         val transformOriginState = remember { mutableStateOf(TransformOrigin.Center) }
         val density = LocalDensity.current
         val popupPositionProvider = DropdownMenuPositionProvider(
@@ -45,7 +43,6 @@ fun PopUp(
         Popup(
             popupPositionProvider = popupPositionProvider,
             onDismissRequest = onDismissRequest,
-//            focusable = focusable,
             content = content
         )
     }

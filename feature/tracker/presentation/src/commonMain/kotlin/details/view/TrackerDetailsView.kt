@@ -2,34 +2,43 @@ package details.view
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
 import components.ClickableTag
+import components.DropDownMenu
+import components.DropDownMenuItem
 import components.FullWidthTextField
-import components.PopUp
 import model.TrackerActivity
 import model.TrackerProject
 import model.TrackerTaskHint
 import theme.Theme.colors
 import theme.Theme.dimens
-import theme.Theme.shapes
 import theme.Theme.typography
 
 @Composable
@@ -39,6 +48,7 @@ fun TrackerDetailsView(
     task: String,
     description: String,
     start: String,
+    duration: String,
     projectsSuggestions: List<TrackerProject>,
     taskSuggestions: List<TrackerTaskHint>,
     descriptionSuggestions: List<String>,
@@ -52,13 +62,31 @@ fun TrackerDetailsView(
     onDescriptionSelect: (String) -> Unit,
     onActivityClick: () -> Unit,
     onActivitySelect: (Int) -> Unit,
+    onCloseClick: () -> Unit,
+    onCreateClick: () -> Unit,
 ) {
     Column(
         modifier = Modifier
-            .fillMaxSize()
             .background(color = colors.primaryContainerBackground)
             .padding(all = dimens.medium)
+            .fillMaxSize()
     ) {
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = onCloseClick) {
+                Icon(imageVector = Icons.Default.Close, contentDescription = null)
+            }
+            Spacer(modifier = Modifier.weight(1f))
+            TextButton(onClick = onCreateClick) {
+                Text("Готово", style = typography.headerNormal, color = colors.accent)
+            }
+        }
+        Spacer(modifier = Modifier.height(dimens.medium))
+        Text(
+            text = duration,
+            style = typography.headerLarge,
+            color = colors.onPrimaryContainerText
+        )
+        Spacer(modifier = Modifier.height(dimens.medium))
         TextFieldWithSuggestions(
             value = project,
             suggestions = projectsSuggestions,
@@ -116,40 +144,43 @@ fun <T> TextFieldWithSuggestions(
 ) {
     val isFocused = remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
+    val textFieldSize = remember { mutableStateOf(Size.Zero) }
     Column(modifier = modifier) {
         FullWidthTextField(
-            modifier = Modifier.onFocusChanged { isFocused.value = it.isFocused },
+            modifier = Modifier
+                .onGloballyPositioned { coordinates ->
+                    //This value is used to assign to the DropDown the same width
+                    textFieldSize.value = coordinates.size.toSize()
+                }
+                .onFocusChanged { isFocused.value = it.isFocused }
+            ,
             value = value,
             textStyle = textStyle,
             placeholder = placeholder,
             onValueChange = onValueChange
         )
-        PopUp(
+        Spacer(modifier = Modifier.height(dimens.default))
+        DropDownMenu(
+            modifier = Modifier.width(
+                with(LocalDensity.current) {
+                    textFieldSize.value.width.toDp()
+                }
+            ),
             expanded = isFocused.value,
             onDismissRequest = {
                 isFocused.value = false
                 focusManager.clearFocus()
             }
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp)
-                    .padding(all = dimens.medium)
-                    .background(color = colors.primaryBackground, shape = shapes.roundedDefault)
-                    .padding(all = dimens.normal),
-            ) {
-                items(items = suggestions) { suggestion ->
-                    Text(
-                        modifier = Modifier.clickable {
-                            onSelect(suggestion)
-                            isFocused.value = false
-                            focusManager.clearFocus()
-                        },
-                        text = suggestion.formatSuggestion()
-                    )
-                    Spacer(modifier = Modifier.height(dimens.default))
-                }
+            items(items = suggestions) { suggestion ->
+                DropDownMenuItem(
+                    text = suggestion.formatSuggestion(),
+                    onClick = {
+                        onSelect(suggestion)
+                        isFocused.value = false
+                        focusManager.clearFocus()
+                    }
+                )
             }
         }
     }
@@ -163,36 +194,28 @@ private fun ActivitySelector(
     onSelect: (Int) -> Unit
 ) {
     val activityPopupExpanded = remember { mutableStateOf(false) }
-    ClickableTag(
-        text = activity ?: "Не выбрано",
-        onClick = {
-            activityPopupExpanded.value = true
-            onClick()
-        }
-    )
-    PopUp(
-        expanded = activityPopupExpanded.value,
-        onDismissRequest = { activityPopupExpanded.value = false }
-    ) {
-        LazyColumn(
-            modifier = Modifier
-                .width(240.dp)
-                .height(120.dp)
-                .padding(top = dimens.medium)
-                .background(color = colors.primaryBackground, shape = shapes.roundedDefault)
-                .padding(all = dimens.normal),
+    Column(modifier = Modifier.fillMaxWidth()) {
+        ClickableTag(
+            text = activity ?: "Не выбрано",
+            onClick = {
+                activityPopupExpanded.value = true
+                onClick()
+            }
+        )
+        Spacer(modifier = Modifier.height(dimens.default))
+        DropDownMenu(
+            modifier = Modifier.width(240.dp),
+            expanded = activityPopupExpanded.value,
+            onDismissRequest = { activityPopupExpanded.value = false }
         ) {
-            items(
-                items = activitiesList
-            ) {activity ->
-                Text(
-                    modifier = Modifier.clickable {
+            items(items = activitiesList) { activity ->
+                DropDownMenuItem(
+                    text = activity.name,
+                    onClick = {
                         activityPopupExpanded.value = false
                         onSelect(activity.id)
-                    },
-                    text = activity.name
+                    }
                 )
-                Spacer(modifier = Modifier.height(dimens.default))
             }
         }
     }

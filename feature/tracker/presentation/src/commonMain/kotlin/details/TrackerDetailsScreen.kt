@@ -4,13 +4,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import com.adeo.kviewmodel.compose.observeAsState
 import com.adeo.kviewmodel.odyssey.StoredViewModel
+import details.model.TrackerDetailsAction
 import details.model.TrackerDetailsEvent
 import details.view.TrackerDetailsView
+import ru.alexgladkov.odyssey.compose.local.LocalRootController
+import ru.alexgladkov.odyssey.core.backpress.BackPressedCallback
+import ru.alexgladkov.odyssey.core.backpress.OnBackPressedDispatcher
+import utils.formatDuration
 
 @Composable
 fun TrackerDetailsScreen() {
+    val rootController = LocalRootController.current
     StoredViewModel(factory = { TrackerDetailsViewModel() }) { viewModel ->
         val state by viewModel.viewStates().observeAsState()
+        val action by viewModel.viewActions().observeAsState()
         val project by viewModel.projectFlow.observeAsState()
         TrackerDetailsView(
             project = project,
@@ -18,6 +25,7 @@ fun TrackerDetailsScreen() {
             task = state.task,
             description = state.description,
             start = state.start,
+            duration = state.duration.formatDuration(),
             projectsSuggestions = state.projectSuggestions,
             taskSuggestions = state.taskSuggestions,
             descriptionSuggestions = state.descriptionSuggestions,
@@ -41,10 +49,28 @@ fun TrackerDetailsScreen() {
             onDescriptionSelect = { value ->
                 viewModel.obtainEvent(TrackerDetailsEvent.DescriptionSelected(value))
             },
-            onActivityClick = { viewModel.obtainEvent(TrackerDetailsEvent.ActivityClicked)},
+            onActivityClick = { viewModel.obtainEvent(TrackerDetailsEvent.SelectActivityClicked)},
             onActivitySelect = { id ->
                 viewModel.obtainEvent(TrackerDetailsEvent.ActivitySelected(id))
-            }
+            },
+            onCloseClick = { viewModel.obtainEvent(TrackerDetailsEvent.CloseClicked) },
+            onCreateClick = { viewModel.obtainEvent(TrackerDetailsEvent.CreateClicked) }
         )
+
+        action?.let { action ->
+            when (action) {
+                is TrackerDetailsAction.NavigateBack -> {
+                    rootController.popBackStack()
+                }
+            }
+        }
+        rootController.setupBackPressedDispatcher(
+            onBackPressedDispatcher = OnBackPressedDispatcher().apply {
+                backPressedCallback = object : BackPressedCallback() {
+                    override fun onBackPressed() {
+                        viewModel.obtainEvent(TrackerDetailsEvent.CloseClicked)
+                    }
+                }
+            })
     }
 }
