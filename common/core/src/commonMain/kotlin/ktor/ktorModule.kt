@@ -20,7 +20,14 @@ import kotlinx.serialization.json.Json
 import org.koin.dsl.module
 
 internal fun ktorModule() = module {
-    single<HttpClient> {
+    single {
+        Json {
+            isLenient = true
+            ignoreUnknownKeys = true
+            prettyPrint = true
+        }
+    }
+    single {
         HttpClient(KtorEngineFactory().createEngine()) {
 
             install(Auth) {
@@ -40,12 +47,7 @@ internal fun ktorModule() = module {
             install(DefaultRequest)
 
             install(ContentNegotiation) {
-                // мб унести в отдельный модуль
-                json(Json {
-                    isLenient = true
-                    ignoreUnknownKeys = true
-                    prettyPrint = true
-                })
+                json(get())
             }
 
             defaultRequest {
