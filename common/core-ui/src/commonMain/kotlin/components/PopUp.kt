@@ -25,6 +25,7 @@ import kotlin.math.min
 internal fun PopUp(
     expanded: Boolean,
     offset: DpOffset = DpOffset(0.dp, 0.dp),
+    focusable: Boolean = true,
     onDismissRequest: () -> Unit,
     content: @Composable () -> Unit
 ) {
@@ -43,6 +44,7 @@ internal fun PopUp(
         Popup(
             popupPositionProvider = popupPositionProvider,
             onDismissRequest = onDismissRequest,
+//            focusable = focusable,
             content = content
         )
     }
@@ -58,11 +60,9 @@ fun calculateTransformOrigin(
         menuBounds.right <= parentBounds.left -> 1f
         menuBounds.width == 0 -> 0f
         else -> {
-            val intersectionCenter =
-                (
-                        max(parentBounds.left, menuBounds.left) +
-                                min(parentBounds.right, menuBounds.right)
-                        ) / 2
+            val left = max(parentBounds.left, menuBounds.left)
+            val right = min(parentBounds.right, menuBounds.right)
+            val intersectionCenter = (left + right) / 2
             (intersectionCenter - menuBounds.left).toFloat() / menuBounds.width
         }
     }
@@ -71,11 +71,9 @@ fun calculateTransformOrigin(
         menuBounds.bottom <= parentBounds.top -> 1f
         menuBounds.height == 0 -> 0f
         else -> {
-            val intersectionCenter =
-                (
-                        max(parentBounds.top, menuBounds.top) +
-                                min(parentBounds.bottom, menuBounds.bottom)
-                        ) / 2
+            val top = max(parentBounds.top, menuBounds.top)
+            val bottom = min(parentBounds.bottom, menuBounds.bottom)
+            val intersectionCenter = (top + bottom) / 2
             (intersectionCenter - menuBounds.top).toFloat() / menuBounds.height
         }
     }
