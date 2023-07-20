@@ -27,11 +27,16 @@ fun FullWidthTextField(
         textStyle = textStyle,
         shape = shapes.roundedDefault,
         colors = TextFieldDefaults.outlinedTextFieldColors(
-            textColor = colors.onPrimaryContainerText,
+            textColor = colors.onPrimaryText,
+            backgroundColor = colors.primaryBackground,
             unfocusedBorderColor = colors.primaryContainerBorder,
             focusedBorderColor = colors.primaryContainerBorder
         ),
-        placeholder = { placeholder?.let { Text(text = it) } },
+        placeholder = {
+            placeholder?.let {
+                Text(text = it, style = typography.bodyNormal, color = colors.onPrimaryText)
+            }
+        },
         onValueChange = onValueChange
     )
 }

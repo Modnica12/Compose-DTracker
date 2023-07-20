@@ -73,7 +73,7 @@ fun TrackerDetailsView(
     ) {
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onCloseClick) {
-                Icon(imageVector = Icons.Default.Close, contentDescription = null)
+                Icon(imageVector = Icons.Default.Close, tint = colors.onPrimaryContainerText, contentDescription = null)
             }
             Spacer(modifier = Modifier.weight(1f))
             TextButton(onClick = onCreateClick) {

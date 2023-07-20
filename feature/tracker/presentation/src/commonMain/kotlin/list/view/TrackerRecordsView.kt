@@ -152,6 +152,7 @@ private fun TaskGroupHeader(
         Icon(
             modifier = Modifier.rotate(iconRotationDegrees),
             imageVector = Icons.Default.KeyboardArrowRight,
+            tint = colors.onPrimaryContainerText,
             contentDescription = null
         )
         HeaderText(modifier = Modifier.weight(1f), text = name.ifEmpty { "Задача не выбрана" })
@@ -174,6 +175,7 @@ private fun TaskGroupRecord(record: TrackerListItem.Record) {
             modifier = Modifier.weight(1f),
             text = record.description,
             style = typography.bodyNormal,
+            color = colors.onPrimaryContainerText,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -200,6 +202,7 @@ private fun TrackerRecord(record: TrackerListItem.Record) {
             Text(
                 text = record.description,
                 style = typography.bodyNormal,
+                color = colors.onPrimaryContainerText,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )

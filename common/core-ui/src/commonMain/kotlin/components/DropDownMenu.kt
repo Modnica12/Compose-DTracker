@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import theme.Theme
 import theme.Theme.colors
 import theme.Theme.dimens
+import theme.Theme.typography
 
 @Composable
 fun DropDownMenu(
@@ -58,6 +59,8 @@ fun DropDownMenuItem(
             .fillMaxWidth()
             .clickable(interactionSource = interactionSource, indication = indication) { onClick() }
             .padding(vertical = dimens.default, horizontal = dimens.normal),
-        text = text
+        text = text,
+        style = typography.bodyNormal,
+        color = colors.onPrimaryContainerText
     )
 }
