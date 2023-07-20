@@ -19,7 +19,10 @@ import com.adeo.kviewmodel.compose.observeAsState
 import com.adeo.kviewmodel.odyssey.StoredViewModel
 import list.model.TrackerRecordsAction
 import list.model.TrackerRecordsEvent
+import list.model.TrackerRecordsScreenState
 import list.view.TrackerBottomBar
+import list.view.TrackerRecordsErrorView
+import list.view.TrackerRecordsLoadingView
 import list.view.TrackerRecordsView
 import navigation.NavigationTree
 import ru.alexgladkov.odyssey.compose.extensions.present
@@ -35,32 +38,38 @@ fun TrackerRecordsScreen() {
         val state by viewModel.viewStates().observeAsState()
         val action = viewModel.viewActions().observeAsState()
         val tracking = state.currentRecord.isTracking
-        Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            floatingActionButtonPosition = FabPosition.End,
-            floatingActionButton = {
-                TrackerButton(
-                    tracking = tracking,
-                    onClick = { viewModel.obtainEvent(TrackerRecordsEvent.TrackerButtonClicked) }
-                )
-            },
-            bottomBar = {
-                TrackerBottomBar(
-                    recordDetails = state.currentRecord,
-                    tracking = tracking,
-                    onClick = { viewModel.obtainEvent(TrackerRecordsEvent.BottomBarClicked) },
-                    onStartClick = { viewModel.obtainEvent(TrackerRecordsEvent.StartClicked) })
-            },
-            content = { paddingValues ->
-                TrackerRecordsView(
-                    modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
-                    recordsItems = state.dateGroups,
-                    onTaskGroupClick = {
-                        viewModel.obtainEvent(TrackerRecordsEvent.TaskGroupClicked(taskGroup = it))
-                    }
-                )
-            }
-        )
+        when(state.screenState) {
+            TrackerRecordsScreenState.Idle -> Scaffold(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = colors.primaryBackground),
+                floatingActionButtonPosition = FabPosition.End,
+                floatingActionButton = {
+                    TrackerButton(
+                        tracking = tracking,
+                        onClick = { viewModel.obtainEvent(TrackerRecordsEvent.TrackerButtonClicked) }
+                    )
+                },
+                bottomBar = {
+                    TrackerBottomBar(
+                        recordDetails = state.currentRecord,
+                        tracking = tracking,
+                        onClick = { viewModel.obtainEvent(TrackerRecordsEvent.BottomBarClicked) },
+                        onStartClick = { viewModel.obtainEvent(TrackerRecordsEvent.StartClicked) })
+                },
+                content = { paddingValues ->
+                    TrackerRecordsView(
+                        modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
+                        recordsItems = state.dateGroups,
+                        onTaskGroupClick = {
+                            viewModel.obtainEvent(TrackerRecordsEvent.TaskGroupClicked(taskGroup = it))
+                        }
+                    )
+                }
+            )
+            TrackerRecordsScreenState.Loading -> TrackerRecordsLoadingView()
+            TrackerRecordsScreenState.Error -> TrackerRecordsErrorView()
+        }
 
         action.value?.let { action ->
             when (action) {

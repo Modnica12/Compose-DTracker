@@ -9,6 +9,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import list.model.TrackerRecordsAction
 import list.model.TrackerRecordsEvent
+import list.model.TrackerRecordsScreenState
 import list.model.TrackerRecordsState
 import model.TrackerListItem
 import model.TrackerRecord
@@ -16,7 +17,7 @@ import model.details.TrackerRecordDetails
 import model.details.toDetails
 import model.toDateGroups
 
-class TrackerRecordsViewModel : BaseSharedViewModel<TrackerRecordsState, TrackerRecordsAction, TrackerRecordsEvent>(
+internal class TrackerRecordsViewModel : BaseSharedViewModel<TrackerRecordsState, TrackerRecordsAction, TrackerRecordsEvent>(
     initialState = TrackerRecordsState()
 ) {
 
@@ -26,8 +27,13 @@ class TrackerRecordsViewModel : BaseSharedViewModel<TrackerRecordsState, Tracker
 
     init {
         viewModelScope.launch {
-            val dateGroups = repository.getRecords().toDateGroups()
-            viewState = viewState.copy(dateGroups = dateGroups)
+            repository.getRecords().onSuccess { records ->
+                val dateGroups = records.toDateGroups()
+                viewState = viewState.copy(
+                    screenState = TrackerRecordsScreenState.Idle,
+                    dateGroups = dateGroups
+                )
+            }.onFailure { viewState = viewState.copy(screenState = TrackerRecordsScreenState.Error) }
         }
         viewModelScope.launch {
             repository.getCurrentRecord()

@@ -8,7 +8,7 @@ interface TrackerRecordsRepository {
 
     val currentRecord: MutableStateFlow<TrackerRecord?>
 
-    suspend fun getRecords(): List<TrackerRecord>
+    suspend fun getRecords(): Result<List<TrackerRecord>>
 
     suspend fun getCurrentRecord(): Result<Unit>
 

@@ -18,9 +18,14 @@ internal class TrackerRecordsRepositoryImpl(
 
     override val currentRecord: MutableStateFlow<TrackerRecord?> = MutableStateFlow(null)
 
-    override suspend fun getRecords(): List<TrackerRecord> =
+    override suspend fun getRecords(): Result<List<TrackerRecord>> =
+        // вынести в отдельную функцию withContext и try catch
         withContext(Dispatchers.IO) {
-            remoteSource.fetchRecords().map(TrackerRecordRemote::toDomain)
+            try {
+                Result.success(remoteSource.fetchRecords().map(TrackerRecordRemote::toDomain))
+            } catch (exception: Exception) {
+                Result.failure(exception)
+            }
         }
 
     override suspend fun getCurrentRecord(): Result<Unit> =
