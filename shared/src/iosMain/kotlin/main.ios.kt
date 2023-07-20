@@ -7,8 +7,6 @@ import ru.alexgladkov.odyssey.compose.setup.StartScreen
 import ru.alexgladkov.odyssey.compose.setup.setNavigationContent
 import theme.AppTheme
 
-actual fun getPlatformName(): String = "iOS"
-
 fun MainViewController(): UIViewController =
     ComposeUIViewController {
         AppTheme {
