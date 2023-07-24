@@ -1,6 +1,14 @@
+import database.TrackerRecordCache
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flattenMerge
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import ktor.KtorTrackerDataSource
 import model.TrackerActivity
@@ -11,24 +19,35 @@ import model.request.TrackerRecordRequestBody
 import model.request.toRequestBody
 import model.response.TrackerRecordRemote
 import model.response.toDomain
+import sqldelight.database.SqlDelightTrackerDataSource
+import sqldelight.database.toCache
+import sqldelight.database.toDomain
 
 internal class TrackerRecordsRepositoryImpl(
-    private val remoteSource: KtorTrackerDataSource
+    private val remoteSource: KtorTrackerDataSource,
+    private val cacheSource: SqlDelightTrackerDataSource
 ) : TrackerRecordsRepository {
 
     override val currentRecord: MutableStateFlow<TrackerRecord?> = MutableStateFlow(null)
 
-    override suspend fun getRecords(): Result<List<TrackerRecord>> =
-        // вынести в отдельную функцию withContext и try catch
-        withContext(Dispatchers.IO) {
-            try {
-                Result.success(remoteSource.fetchRecords().map(TrackerRecordRemote::toDomain))
-            } catch (exception: Exception) {
-                Result.failure(exception)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override suspend fun getRecords(): Flow<List<TrackerRecord>> =
+        flowOf(
+            cacheSource.getTrackerRecords()
+                .flowOn(Dispatchers.IO)
+                .map { records -> records.map(TrackerRecordCache::toDomain) },
+            flow {
+                remoteSource.fetchRecords().map(TrackerRecordRemote::toDomain).apply {
+                    cacheSource.clear()
+                    forEach { record -> cacheSource.insertRecord(record.toCache()) }
+                    emit(this)
+                }
             }
-        }
+        )
+            .flattenMerge()
 
     override suspend fun getCurrentRecord(): Result<Unit> =
+        // вынести в отдельную функцию withContext и try catch
         withContext(Dispatchers.IO) {
             try {
                 currentRecord.value = remoteSource.fetchCurrent().toDomain()

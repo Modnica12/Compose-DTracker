@@ -6,6 +6,9 @@ import di.getKoinInstance
 import utils.formatDuration
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import list.model.TrackerRecordsAction
 import list.model.TrackerRecordsEvent
@@ -27,13 +30,17 @@ internal class TrackerRecordsViewModel : BaseSharedViewModel<TrackerRecordsState
 
     init {
         viewModelScope.launch {
-            repository.getRecords().onSuccess { records ->
-                val dateGroups = records.toDateGroups()
-                viewState = viewState.copy(
-                    screenState = TrackerRecordsScreenState.Idle,
-                    dateGroups = dateGroups
-                )
-            }.onFailure { viewState = viewState.copy(screenState = TrackerRecordsScreenState.Error) }
+            repository.getRecords()
+                .catch {
+//                    viewState = viewState.copy(screenState = TrackerRecordsScreenState.Error)
+                }
+                .collect { records ->
+                    val dateGroups = records.toDateGroups()
+                    viewState = viewState.copy(
+                        screenState = TrackerRecordsScreenState.Idle,
+                        dateGroups = dateGroups
+                    )
+                }
         }
         viewModelScope.launch {
             repository.getCurrentRecord()

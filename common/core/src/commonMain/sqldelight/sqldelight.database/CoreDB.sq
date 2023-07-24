@@ -1,9 +1,0 @@
-CREATE TABLE TrackerRecords (
-    id TEXT NOT NULL,
-    project TEXT NOT NULL,
-    task TEXT NOT NULL,
-    description TEXT NOT NULL,
-    activity TEXT NOT NULL,
-    start TEXT NOT NULL,
-    duration INTEGER NOT NULL
-);

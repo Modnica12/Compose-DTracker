@@ -1,3 +1,4 @@
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import model.TrackerActivity
 import model.TrackerProject
@@ -8,7 +9,7 @@ interface TrackerRecordsRepository {
 
     val currentRecord: MutableStateFlow<TrackerRecord?>
 
-    suspend fun getRecords(): Result<List<TrackerRecord>>
+    suspend fun getRecords(): Flow<List<TrackerRecord>>
 
     suspend fun getCurrentRecord(): Result<Unit>
 

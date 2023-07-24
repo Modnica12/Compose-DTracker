@@ -1,0 +1,24 @@
+import model.cache.TrackerProjectCache;
+import model.cache.TrackerTaskCache;
+import model.cache.TrackerActivityCache;
+
+CREATE TABLE TrackerRecordCache(
+    id TEXT NOT NULL,
+    project TEXT AS TrackerProjectCache,
+    activity TEXT AS TrackerActivityCache,
+    task TEXT AS TrackerTaskCache,
+    start TEXT NOT NULL,
+    duration INTEGER NOT NULL,
+    description TEXT NOT NULL
+);
+
+selectAll:
+SELECT *
+FROM TrackerRecordCache;
+
+insert:
+INSERT OR FAIL INTO TrackerRecordCache(id, project, activity, task, start, duration, description)
+VALUES ?;
+
+clear:
+DELETE FROM TrackerRecordCache;

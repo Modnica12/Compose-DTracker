@@ -34,6 +34,7 @@ gradle-serialization = { group = "org.jetbrains.kotlin", name = "kotlin-serializ
 gradle-sqldelight = { group = "com.squareup.sqldelight", name = "gradle-plugin", version.ref = "sqldelight" }
 
 kotlin-serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core", version.ref = "kotlin-serialization" }
+kotlin-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlin-serialization" }
 
 koin = { group = "io.insert-koin", name = "koin-core", version.ref = "koin"}
 
@@ -46,6 +47,7 @@ ktor-android = { group = "io.ktor", name = "ktor-client-android", version.ref = 
 ktor-ios = { group = "io.ktor", name = "ktor-client-ios", version.ref = "ktor"}
 
 sqldelight-core = { group = "com.squareup.sqldelight", name = "runtime", version.ref = "sqldelight" }
+sqldelight-coroutines = { group = "com.squareup.sqldelight", name = "coroutines-extensions", version.ref = "sqldelight" }
 sqldelight-android = { group = "com.squareup.sqldelight", name = "android-driver", version.ref = "sqldelight" }
 sqldelight-ios = { group = "com.squareup.sqldelight", name = "native-driver", version.ref = "sqldelight" }
 

@@ -7,10 +7,12 @@ import details.model.TrackerDetailsEvent
 import details.model.TrackerDetailsState
 import di.getKoinInstance
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
@@ -19,6 +21,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import model.TrackerTask
 import model.TrackerTaskHint
+import usecase.StartTrackerTimerUseCase
 
 @OptIn(FlowPreview::class)
 class TrackerDetailsViewModel :
@@ -34,6 +37,9 @@ class TrackerDetailsViewModel :
     private val descriptionTextFieldFlow = MutableStateFlow("")
 
     private val repository: TrackerRecordsRepository = getKoinInstance()
+    private val startTrackerTimerUseCase = StartTrackerTimerUseCase()
+
+    private var timerJob: Job? = null
 
     init {
         viewModelScope.launch {
@@ -52,6 +58,7 @@ class TrackerDetailsViewModel :
                     projectTextFieldFlow.value = projectKey
                     taskTextFieldFlow.value = taskName
                     descriptionTextFieldFlow.value = description
+//                    startTracker(startDuration = currentRecord.duration)
                 }
             }
         }
@@ -171,7 +178,7 @@ class TrackerDetailsViewModel :
         }
     }
 
-    private suspend fun startTracker() {
+    private suspend fun startTracker(onStart: () -> Unit = {}) {
         val currentRecord = repository.currentRecord.value
         currentRecord?.project?.let { project ->
             repository.startTracker(
@@ -181,17 +188,35 @@ class TrackerDetailsViewModel :
                 description = currentRecord.description,
                 start = currentRecord.start
             )
+            onStart()
         } ?: run {
             viewState = viewState.copy(errorMessage = "Заполните ключ проекта")
         }
     }
 
     private fun closeClicked() {
+        repository.currentRecord.value = null
         viewAction = TrackerDetailsAction.NavigateBack
     }
 
     private fun createClicked() {
-        viewAction = TrackerDetailsAction.NavigateBack
+        withViewModelScope {
+            startTracker {
+                viewAction = TrackerDetailsAction.NavigateBack
+            }
+        }
+    }
+
+    private fun startTracker(startDuration: Int) {
+        timerJob?.cancel()
+        timerJob = null
+        timerJob = viewModelScope.launch {
+            startTrackerTimerUseCase(startDuration)
+                .onEach { duration ->
+                    viewState = viewState.copy(duration = duration)
+                }
+                .collect()
+        }
     }
 
     private fun <T> Flow<T>.collectTextFieldValues(onEach: suspend (T) -> Unit) {

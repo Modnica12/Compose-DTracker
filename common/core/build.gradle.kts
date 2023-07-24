@@ -2,7 +2,6 @@ plugins {
     `android-setup`
     `multiplatform-setup`
     kotlin("plugin.serialization")
-    id("com.squareup.sqldelight")
 }
 
 android {
@@ -24,6 +23,7 @@ kotlin {
                 implementation(libs.ktor.auth)
 
                 api(libs.sqldelight.core)
+                api(libs.sqldelight.coroutines)
             }
         }
 
@@ -40,11 +40,5 @@ kotlin {
                 implementation(libs.sqldelight.ios)
             }
         }
-    }
-}
-
-sqldelight {
-    database("CoreDB") {
-        packageName = "sqldelight.database"
     }
 }
