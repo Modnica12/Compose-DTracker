@@ -32,7 +32,7 @@ internal class TrackerRecordsViewModel : BaseSharedViewModel<TrackerRecordsState
         viewModelScope.launch {
             repository.getRecords()
                 .catch {
-//                    viewState = viewState.copy(screenState = TrackerRecordsScreenState.Error)
+                    viewState = viewState.copy(screenState = TrackerRecordsScreenState.Error)
                 }
                 .collect { records ->
                     val dateGroups = records.toDateGroups()
@@ -44,6 +44,9 @@ internal class TrackerRecordsViewModel : BaseSharedViewModel<TrackerRecordsState
         }
         viewModelScope.launch {
             repository.getCurrentRecord()
+        }
+        viewModelScope.launch {
+            repository.fetchRecords()
         }
         viewModelScope.launch {
             repository.currentRecord.collect { currentRecord ->

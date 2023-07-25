@@ -11,6 +11,8 @@ interface TrackerRecordsRepository {
 
     suspend fun getRecords(): Flow<List<TrackerRecord>>
 
+    suspend fun fetchRecords()
+
     suspend fun getCurrentRecord(): Result<Unit>
 
     suspend fun startTracker(
