@@ -2,6 +2,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.CompositionLocalProvider
 import com.adeo.kviewmodel.odyssey.setupWithViewModels
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import navigation.NavigationTree
 import navigation.generateGraph
 import ru.alexgladkov.odyssey.compose.base.Navigator
@@ -21,6 +22,10 @@ fun ComponentActivity.setupThemedNavigation() {
 
     setContent {
         AppTheme {
+
+            val systemUiController = rememberSystemUiController()
+            systemUiController.setSystemBarsColor(color = colors.primaryBackground)
+
             val configuration = DefaultModalConfiguration(
                 backgroundColor = colors.primaryBackground,
                 displayType = DisplayType.EdgeToEdge

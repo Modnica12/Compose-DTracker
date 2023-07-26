@@ -36,6 +36,7 @@ kotlin {
         androidMain {
             dependencies {
                 implementation(libs.kviewmodel.odessey)
+                implementation(libs.accompanist.systemuicontroller)
             }
         }
     }
