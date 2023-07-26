@@ -10,7 +10,6 @@ data class TrackerDetailsState(
     val task: String = "",
     val description: String = "",
     val start: String = "",
-    val duration: Int = 0,
     val projectSuggestions: List<TrackerProject> = emptyList(),
     val taskSuggestions: List<TrackerTaskHint> = emptyList(),
     val descriptionSuggestions: List<String> = emptyList(),

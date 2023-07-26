@@ -12,6 +12,10 @@ class SqlDelightTrackerDataSource(private val trackerRecordsQueries: TrackerReco
         return trackerRecordsQueries.selectAll().asFlow().mapToList()
     }
 
+    fun getRecordWithId(id: String): TrackerRecordCache? {
+        return trackerRecordsQueries.getById(id = id).executeAsOneOrNull()
+    }
+
     suspend fun insertRecord(record: TrackerRecordCache) {
         trackerRecordsQueries.insert(record)
     }

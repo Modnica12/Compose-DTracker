@@ -1,6 +1,5 @@
 package list.view
 
-import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -37,12 +36,10 @@ fun TrackerBottomBar(
     onClick: () -> Unit,
     onStartClick: () -> Unit
 ) {
-    Crossfade(targetState = tracking) {
-        if (tracking) {
-            TrackingContent(recordDetails = recordDetails, onClick = onClick)
-        } else {
-            InactionContent(onStartClick = onStartClick)
-        }
+    if (tracking) {
+        TrackingContent(recordDetails = recordDetails, onClick = onClick)
+    } else {
+        InactionContent(onStartClick = onStartClick)
     }
 }
 

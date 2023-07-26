@@ -11,8 +11,8 @@ fun RootComposeBuilder.trackerFlow() {
         screen(NavigationTree.Tracker.List.name) {
             TrackerRecordsScreen()
         }
-        screen(NavigationTree.Tracker.Details.name) {
-            TrackerDetailsScreen()
+        screen(NavigationTree.Tracker.Details.name) { recordId ->
+            TrackerDetailsScreen(recordId as? String)
         }
     }
 }

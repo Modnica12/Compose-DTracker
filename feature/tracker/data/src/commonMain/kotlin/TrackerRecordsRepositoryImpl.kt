@@ -31,6 +31,10 @@ internal class TrackerRecordsRepositoryImpl(
             .flowOn(Dispatchers.IO)
             .map { records -> records.map(TrackerRecordCache::toDomain) }
 
+    override suspend fun getRecordWithId(id: String): TrackerRecord? {
+        return cacheSource.getRecordWithId(id = id)?.toDomain()
+    }
+
     override suspend fun fetchRecords() = withContext(Dispatchers.IO) {
         remoteSource.fetchRecords().map(TrackerRecordRemote::toDomain).let { records ->
             cacheSource.clear()
@@ -75,6 +79,7 @@ internal class TrackerRecordsRepositoryImpl(
     override suspend fun stopTracker(): Result<TrackerRecord> =
         withContext(Dispatchers.IO) {
             try {
+                currentRecord.value = null
                 Result.success(remoteSource.stopTracker().toDomain())
             } catch (exception: Exception) {
                 Result.failure(exception)

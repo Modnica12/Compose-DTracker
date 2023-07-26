@@ -39,11 +39,13 @@ import theme.Theme.typography
 fun TrackerRecordsView(
     modifier: Modifier = Modifier,
     recordsItems: List<TrackerDateGroup>,
+    onRecordClick: (String) -> Unit,
     onTaskGroupClick: (TrackerListItem.TaskGroup) -> Unit
 ) {
     RecordsList(
         modifier = modifier,
         recordsItems = recordsItems,
+        onRecordClick = onRecordClick,
         onTaskGroupClick = onTaskGroupClick
     )
 }
@@ -52,6 +54,7 @@ fun TrackerRecordsView(
 private fun RecordsList(
     modifier: Modifier = Modifier,
     recordsItems: List<TrackerDateGroup>,
+    onRecordClick: (String) -> Unit,
     onTaskGroupClick: (TrackerListItem.TaskGroup) -> Unit
 ) {
     LazyColumn(
@@ -61,7 +64,11 @@ private fun RecordsList(
     ) {
         items(items = recordsItems, key = TrackerDateGroup::date) { item ->
             Spacer(modifier = Modifier.height(dimens.medium))
-            DateGroupCard(dateGroup = item, onTaskGroupClick = onTaskGroupClick)
+            DateGroupCard(
+                dateGroup = item,
+                onRecordClick = onRecordClick,
+                onTaskGroupClick = onTaskGroupClick
+            )
         }
         item {
             Spacer(modifier = Modifier.height(dimens.medium))
@@ -72,6 +79,7 @@ private fun RecordsList(
 @Composable
 private fun DateGroupCard(
     dateGroup: TrackerDateGroup,
+    onRecordClick: (String) -> Unit,
     onTaskGroupClick: (TrackerListItem.TaskGroup) -> Unit
 ) {
     Box(
@@ -88,10 +96,14 @@ private fun DateGroupCard(
                 when (item) {
                     is TrackerListItem.TaskGroup -> TrackerTaskGroup(
                         taskGroup = item,
-                        onClick = onTaskGroupClick
+                        onClick = onTaskGroupClick,
+                        onRecordClick = onRecordClick
                     )
 
-                    is TrackerListItem.Record -> TrackerRecord(record = item)
+                    is TrackerListItem.Record -> TrackerRecord(
+                        record = item,
+                        onClick = onRecordClick
+                    )
                 }
             }
         }
@@ -114,7 +126,8 @@ private fun DateHeader(date: String, totalTime: String) {
 @Composable
 private fun TrackerTaskGroup(
     taskGroup: TrackerListItem.TaskGroup,
-    onClick: (TrackerListItem.TaskGroup) -> Unit
+    onClick: (TrackerListItem.TaskGroup) -> Unit,
+    onRecordClick: (String) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         TaskGroupHeader(
@@ -126,7 +139,7 @@ private fun TrackerTaskGroup(
         AnimatedVisibility(visible = taskGroup.isExpanded) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 taskGroup.records.forEach { record ->
-                    TaskGroupRecord(record = record)
+                    TaskGroupRecord(record = record, onClick = onRecordClick)
                 }
             }
         }
@@ -162,12 +175,16 @@ private fun TaskGroupHeader(
 }
 
 @Composable
-private fun TaskGroupRecord(record: TrackerListItem.Record) {
+private fun TaskGroupRecord(
+    record: TrackerListItem.Record,
+    onClick: (String) -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = dimens.default)
-            .padding(start = dimens.extraLarge),
+            .padding(start = dimens.extraLarge)
+            .clickable { onClick(record.id) },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(modifier = Modifier.height(dimens.normal))
@@ -189,11 +206,15 @@ private fun TaskGroupRecord(record: TrackerListItem.Record) {
 }
 
 @Composable
-private fun TrackerRecord(record: TrackerListItem.Record) {
+private fun TrackerRecord(
+    record: TrackerListItem.Record,
+    onClick: (String) -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = dimens.default)
+            .clickable { onClick(record.id) }
     ) {
         Spacer(modifier = Modifier.height(dimens.normal))
         Column(modifier = Modifier.weight(1f)) {

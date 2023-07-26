@@ -14,6 +14,7 @@ import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import theme.Theme
 import theme.Theme.colors
@@ -24,10 +25,11 @@ import theme.Theme.typography
 fun DropDownMenu(
     modifier: Modifier = Modifier,
     expanded: Boolean,
+    offset: IntOffset = IntOffset.Zero,
     onDismissRequest: () -> Unit,
     content: LazyListScope.() -> Unit
 ) {
-    PopUp(expanded = expanded, onDismissRequest = onDismissRequest) {
+    PopUp(expanded = expanded, offset = offset, onDismissRequest = onDismissRequest) {
         LazyColumn(
             modifier = modifier
                 .height(120.dp)

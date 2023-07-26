@@ -38,7 +38,7 @@ fun TrackerRecordsScreen() {
         val state by viewModel.viewStates().observeAsState()
         val action = viewModel.viewActions().observeAsState()
         val tracking = state.currentRecord.isTracking
-        when(state.screenState) {
+        when (state.screenState) {
             TrackerRecordsScreenState.Idle -> Scaffold(
                 modifier = Modifier
                     .fillMaxSize()
@@ -61,12 +61,16 @@ fun TrackerRecordsScreen() {
                     TrackerRecordsView(
                         modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
                         recordsItems = state.dateGroups,
+                        onRecordClick = {
+                            viewModel.obtainEvent(TrackerRecordsEvent.RecordClicked(recordId = it))
+                        },
                         onTaskGroupClick = {
                             viewModel.obtainEvent(TrackerRecordsEvent.TaskGroupClicked(taskGroup = it))
                         }
                     )
                 }
             )
+
             TrackerRecordsScreenState.Loading -> TrackerRecordsLoadingView()
             TrackerRecordsScreenState.Error -> TrackerRecordsErrorView()
         }
@@ -74,7 +78,7 @@ fun TrackerRecordsScreen() {
         action.value?.let { action ->
             when (action) {
                 is TrackerRecordsAction.NavigateToDetails -> {
-                    rootController.present(NavigationTree.Tracker.Details.name)
+                    rootController.present(NavigationTree.Tracker.Details.name, params = action.recordId)
                 }
             }
         }

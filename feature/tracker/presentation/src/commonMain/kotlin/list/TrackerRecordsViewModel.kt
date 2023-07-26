@@ -3,7 +3,6 @@ package list
 import TrackerRecordsRepository
 import com.adeo.kviewmodel.BaseSharedViewModel
 import di.getKoinInstance
-import utils.formatDuration
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
@@ -15,16 +14,17 @@ import list.model.TrackerRecordsEvent
 import list.model.TrackerRecordsScreenState
 import list.model.TrackerRecordsState
 import model.TrackerListItem
-import model.TrackerRecord
 import model.details.TrackerRecordDetails
 import model.details.toDetails
 import model.toDateGroups
+import usecase.StartTrackerTimerUseCase
 
 internal class TrackerRecordsViewModel : BaseSharedViewModel<TrackerRecordsState, TrackerRecordsAction, TrackerRecordsEvent>(
     initialState = TrackerRecordsState()
 ) {
 
     private val repository: TrackerRecordsRepository = getKoinInstance()
+    private val startTrackerTimerUseCase = StartTrackerTimerUseCase()
 
     private var timerJob: Job? = null
 
@@ -52,12 +52,9 @@ internal class TrackerRecordsViewModel : BaseSharedViewModel<TrackerRecordsState
             repository.currentRecord.collect { currentRecord ->
                 currentRecord?.let { record ->
                     viewState = viewState.copy(currentRecord = record.toDetails())
-
-                    // fix
-                    timerJob?.cancel()
-                    timerJob = null
-
                     startTracker(startDuration = record.duration)
+                } ?: run {
+                    viewState = viewState.copy(currentRecord = TrackerRecordDetails.default)
                 }
             }
         }
@@ -67,6 +64,7 @@ internal class TrackerRecordsViewModel : BaseSharedViewModel<TrackerRecordsState
         when (viewEvent) {
             is TrackerRecordsEvent.TrackerButtonClicked -> trackerButtonClicked()
             is TrackerRecordsEvent.TaskGroupClicked -> taskGroupClicked(viewEvent.taskGroup)
+            is TrackerRecordsEvent.RecordClicked -> navigateToDetails(viewEvent.recordId)
             is TrackerRecordsEvent.StartClicked -> startClicked()
             is TrackerRecordsEvent.BottomBarClicked -> bottomBarClicked()
         }
@@ -101,36 +99,31 @@ internal class TrackerRecordsViewModel : BaseSharedViewModel<TrackerRecordsState
     }
 
     private fun startClicked() {
-        repository.currentRecord.value = TrackerRecord.default
         navigateToDetails()
-        if (!viewState.currentRecord.isTracking) {
-            startTracker()
-        }
     }
 
     private fun bottomBarClicked() {
         navigateToDetails()
     }
 
-    private fun navigateToDetails() {
+    private fun navigateToDetails(recordId: String? = null) {
         withViewModelScope {
-            viewAction = TrackerRecordsAction.NavigateToDetails
+            viewAction = TrackerRecordsAction.NavigateToDetails(recordId = recordId)
             delay(100)
             viewAction = null
         }
     }
 
-    private fun startTracker(startDuration: Int = 0) {
+    private fun startTracker(startDuration: Int) {
+        timerJob?.cancel()
+        timerJob = null
         timerJob = viewModelScope.launch {
-            var duration = startDuration
-            while (true) {
-                val currentRecord = viewState.currentRecord
-                viewState = viewState.copy(
-                    currentRecord = currentRecord.copy(duration = duration.formatDuration())
-                )
-                duration += 1
-                delay(1000)
-            }
+            startTrackerTimerUseCase(startDuration)
+                .onEach { duration ->
+                    val currentRecord = repository.currentRecord.value
+                    repository.currentRecord.value = currentRecord?.copy(duration = duration)
+                }
+                .collect()
         }
     }
 

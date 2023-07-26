@@ -16,6 +16,11 @@ selectAll:
 SELECT *
 FROM TrackerRecordCache;
 
+getById:
+SELECT *
+FROM TrackerRecordCache
+WHERE id LIKE ?;
+
 insert:
 INSERT OR FAIL INTO TrackerRecordCache(id, project, activity, task, start, duration, description)
 VALUES ?;

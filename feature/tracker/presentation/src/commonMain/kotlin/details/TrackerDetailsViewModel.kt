@@ -19,15 +19,20 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import model.TrackerRecord
 import model.TrackerTask
 import model.TrackerTaskHint
 import usecase.StartTrackerTimerUseCase
 
 @OptIn(FlowPreview::class)
-class TrackerDetailsViewModel :
-    BaseSharedViewModel<TrackerDetailsState, TrackerDetailsAction, TrackerDetailsEvent>(
-        initialState = TrackerDetailsState()
-    ) {
+class TrackerDetailsViewModel(
+    private val recordId: String?
+) : BaseSharedViewModel<TrackerDetailsState, TrackerDetailsAction, TrackerDetailsEvent>(
+    initialState = TrackerDetailsState()
+) {
+
+    private val mutableDurationFlow = MutableStateFlow(0)
+    val durationFlow: StateFlow<Int> = mutableDurationFlow.asStateFlow()
 
     private val projectTextFieldFlow = MutableStateFlow("")
     val projectFlow: StateFlow<String> = projectTextFieldFlow.asStateFlow()
@@ -42,52 +47,69 @@ class TrackerDetailsViewModel :
     private var timerJob: Job? = null
 
     init {
-        viewModelScope.launch {
-            repository.currentRecord.collect { currentRecord ->
-                currentRecord?.apply {
-                    val projectKey = project?.key ?: ""
-                    val taskName = task?.name ?: ""
-                    viewState = viewState.copy(
-                        selectedProject = project,
-                        selectedActivity = activity,
-                        task = taskName,
-                        description = description,
-                        start = start,
-                        duration = duration
-                    )
-                    projectTextFieldFlow.value = projectKey
-                    taskTextFieldFlow.value = taskName
-                    descriptionTextFieldFlow.value = description
-//                    startTracker(startDuration = currentRecord.duration)
+        initProjectTextField()
+        initTaskTextField()
+        initDescriptionTextField()
+
+        withViewModelScope {
+            if (recordId != null) {
+                repository.getRecordWithId(recordId)?.setData()
+            } else if (repository.currentRecord.value == null) {
+                startTimer(startDuration = 0)
+            } else {
+                repository.currentRecord.value?.setData()
+                repository.currentRecord.collect { currentRecord ->
+                    currentRecord?.apply {
+                        startTimer(startDuration = duration)
+                    }
                 }
             }
         }
+    }
+
+    private fun initProjectTextField() {
         projectTextFieldFlow.collectTextFieldValues { projectValue ->
-            val projects = repository.getProjects(key = projectValue).getOrNull() ?: emptyList()
+            val trimmedProject = projectValue.trim()
+            val projects = repository.getProjects(key = trimmedProject).getOrNull() ?: emptyList()
             viewState = viewState.copy(projectSuggestions = projects)
         }
+    }
 
+    private fun initTaskTextField() {
         taskTextFieldFlow.collectTextFieldValues { taskValue ->
+            val trimmedTask = taskValue.trim()
             val projectIds = repository.currentRecord.value?.project?.id ?: 0
             val tasks = repository.getTasks(
                 projectIds = projectIds,
-                pattern = taskValue
+                pattern = trimmedTask
             )
                 .getOrNull()
                 ?: emptyList()
             viewState = viewState.copy(taskSuggestions = tasks)
         }
+    }
 
+    private fun initDescriptionTextField() {
         descriptionTextFieldFlow.collectTextFieldValues { descriptionValue ->
-            val descriptions = repository.getDescriptions(pattern = descriptionValue)
+            val trimmedDescription = descriptionValue.trim()
+            val descriptions = repository.getDescriptions(pattern = trimmedDescription)
                 .getOrNull()
                 ?: emptyList()
             viewState = viewState.copy(descriptionSuggestions = descriptions)
         }
+    }
 
-        repository.currentRecord.collectTextFieldValues {
-            startTracker()
-        }
+    private fun TrackerRecord.setData() {
+        mutableDurationFlow.value = duration
+        projectTextFieldFlow.value = project?.key ?: ""
+        taskTextFieldFlow.value = task?.name ?: ""
+        viewState = viewState.copy(
+            selectedProject = project,
+            task = task?.name ?: "",
+            description = description,
+            selectedActivity = activity,
+            start = start
+        )
     }
 
     override fun obtainEvent(viewEvent: TrackerDetailsEvent) {
@@ -107,58 +129,45 @@ class TrackerDetailsViewModel :
 
     private fun projectValueChanged(value: String) {
         val errorMessage = if (value.isEmpty()) "Заполните ключ проекта" else null
-        viewState = viewState.copy(/*project = value, */errorMessage = errorMessage)
+        viewState = viewState.copy(errorMessage = errorMessage)
         projectTextFieldFlow.value = value
     }
 
     private fun projectSelected(id: Int) {
         withViewModelScope {
-            repository.currentRecord.value?.let { currentRecord ->
-                viewState.projectSuggestions.firstOrNull { it.id == id }?.let { selectedProject ->
-                    repository.currentRecord.value = currentRecord.copy(project = selectedProject)
-                }
+            viewState.projectSuggestions.firstOrNull { it.id == id }?.let { selectedProject ->
+                viewState = viewState.copy(selectedProject = selectedProject)
+                // улетает лишний запрос
+                projectTextFieldFlow.value = selectedProject.key
             }
         }
     }
 
     private fun taskValueChanged(value: String) {
-        withViewModelScope {
-            repository.currentRecord.value?.let { currentRecord ->
-                val recordWithNewTask = currentRecord.copy(task = TrackerTask(name = value, onYoutrack = false))
-                repository.currentRecord.value = recordWithNewTask
-                taskTextFieldFlow.value = value
-            }
-        }
+        setTask(newTask = value)
     }
 
     private fun taskSelected(taskHint: TrackerTaskHint) {
-        val task = TrackerTask(name = taskHint.name, onYoutrack = false)
-        withViewModelScope {
-            repository.currentRecord.value?.let { currentRecord ->
-                repository.currentRecord.value = currentRecord.copy(
-                    task = task,
-                    description = taskHint.summary
-                )
-            }
-        }
+        setTask(newTask = taskHint.name)
+        setDescription(newDescription = taskHint.summary)
+    }
+
+    private fun setTask(newTask: String) {
+        viewState = viewState.copy(task = newTask)
+        taskTextFieldFlow.value = newTask
     }
 
     private fun descriptionValueChanged(value: String) {
-        withViewModelScope {
-            repository.currentRecord.value?.let { currentRecord ->
-                val recordWithNewDescription = currentRecord.copy(description = value)
-                repository.currentRecord.value = recordWithNewDescription
-                descriptionTextFieldFlow.value = value
-            }
-        }
+        setDescription(newDescription = value)
     }
 
     private fun descriptionSelected(value: String) {
-        withViewModelScope {
-            repository.currentRecord.value?.let { currentRecord ->
-                repository.currentRecord.value = currentRecord.copy(description = value)
-            }
-        }
+        setDescription(newDescription = value)
+    }
+
+    private fun setDescription(newDescription: String) {
+        viewState = viewState.copy(description = newDescription)
+        descriptionTextFieldFlow.value = newDescription
     }
 
     private fun selectActivityClicked() {
@@ -170,50 +179,61 @@ class TrackerDetailsViewModel :
 
     private fun activitySelected(id: Int) {
         withViewModelScope {
-            repository.currentRecord.value?.let { currentRecord ->
-                viewState.activitiesList.firstOrNull { it.id == id }?.let { selectedActivity ->
-                    repository.currentRecord.value = currentRecord.copy(activity = selectedActivity)
-                }
+            viewState.activitiesList.firstOrNull { it.id == id }?.let { selectedActivity ->
+                viewState = viewState.copy(selectedActivity = selectedActivity)
             }
         }
     }
 
-    private suspend fun startTracker(onStart: () -> Unit = {}) {
-        val currentRecord = repository.currentRecord.value
-        currentRecord?.project?.let { project ->
+    private suspend fun startTracker() {
+        viewState.apply {
+            val projectId = selectedProject?.id
+            if (projectId == null) {
+                viewState = viewState.copy(errorMessage = "Заполните ключ проекта")
+                return@apply
+            }
+
             repository.startTracker(
-                projectId = project.id,
-                activityId = currentRecord.activity?.id,
-                task = currentRecord.task?.name ?: "",
-                description = currentRecord.description,
-                start = currentRecord.start
+                projectId = projectId,
+                activityId = selectedActivity?.id,
+                task = task,
+                description = description,
+                start = start
             )
-            onStart()
-        } ?: run {
-            viewState = viewState.copy(errorMessage = "Заполните ключ проекта")
         }
     }
 
     private fun closeClicked() {
-        repository.currentRecord.value = null
         viewAction = TrackerDetailsAction.NavigateBack
     }
 
     private fun createClicked() {
-        withViewModelScope {
-            startTracker {
-                viewAction = TrackerDetailsAction.NavigateBack
+        viewModelScope.launch {
+            if (recordId == null) {
+                startTracker()
+                repository.currentRecord.value = TrackerRecord(
+                    id = "",
+                    project = viewState.selectedProject,
+                    activity = viewState.selectedActivity,
+                    task = TrackerTask(name = viewState.task, onYoutrack = false),
+                    start = viewState.start,
+                    duration = durationFlow.value,
+                    description = viewState.description
+                )
+            } else {
+                // update record
             }
         }
+            .invokeOnCompletion { viewAction = TrackerDetailsAction.NavigateBack }
     }
 
-    private fun startTracker(startDuration: Int) {
+    private fun startTimer(startDuration: Int) {
         timerJob?.cancel()
         timerJob = null
         timerJob = viewModelScope.launch {
             startTrackerTimerUseCase(startDuration)
                 .onEach { duration ->
-                    viewState = viewState.copy(duration = duration)
+                    mutableDurationFlow.value = duration
                 }
                 .collect()
         }

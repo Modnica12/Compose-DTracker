@@ -26,8 +26,8 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import components.ClickableTag
@@ -142,8 +142,7 @@ fun <T> TextFieldWithSuggestions(
     onValueChange: (String) -> Unit,
     onSelect: (T) -> Unit
 ) {
-    val isFocused = remember { mutableStateOf(false) }
-    val focusManager = LocalFocusManager.current
+    val isVisible = remember { mutableStateOf(false) }
     val textFieldSize = remember { mutableStateOf(Size.Zero) }
     Column(modifier = modifier) {
         FullWidthTextField(
@@ -152,12 +151,19 @@ fun <T> TextFieldWithSuggestions(
                     // This value is used to assign to the DropDown the same width
                     textFieldSize.value = coordinates.size.toSize()
                 }
-                .onFocusChanged { isFocused.value = it.isFocused }
+                .onFocusChanged {
+                    if (!it.isFocused) {
+                        isVisible.value = false
+                    }
+                }
             ,
             value = value,
             textStyle = textStyle,
             placeholder = placeholder,
-            onValueChange = onValueChange
+            onValueChange = {
+                isVisible.value = true
+                onValueChange(it)
+            }
         )
         Spacer(modifier = Modifier.height(dimens.default))
         DropDownMenu(
@@ -166,10 +172,10 @@ fun <T> TextFieldWithSuggestions(
                     textFieldSize.value.width.toDp()
                 }
             ),
-            expanded = isFocused.value,
+            expanded = isVisible.value,
+            offset = IntOffset(x = 0, y = textFieldSize.value.height.toInt() + 30), // use dp
             onDismissRequest = {
-                isFocused.value = false
-                focusManager.clearFocus()
+                isVisible.value = false
             }
         ) {
             items(items = suggestions) { suggestion ->
@@ -177,8 +183,7 @@ fun <T> TextFieldWithSuggestions(
                     text = suggestion.formatSuggestion(),
                     onClick = {
                         onSelect(suggestion)
-                        isFocused.value = false
-                        focusManager.clearFocus()
+                        isVisible.value = false
                     }
                 )
             }

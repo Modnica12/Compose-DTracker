@@ -6,7 +6,9 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.TextFieldValue
 import theme.Theme.colors
 import theme.Theme.shapes
 import theme.Theme.typography
@@ -22,7 +24,7 @@ fun FullWidthTextField(
 ) {
     OutlinedTextField(
         modifier = modifier.fillMaxWidth(),
-        value = value,
+        value = TextFieldValue(text = value, selection = TextRange(value.length)),
         enabled = enabled,
         textStyle = textStyle,
         shape = shapes.roundedDefault,
@@ -37,6 +39,6 @@ fun FullWidthTextField(
                 Text(text = it, style = typography.bodyNormal, color = colors.onPrimaryText)
             }
         },
-        onValueChange = onValueChange
+        onValueChange = { value -> onValueChange(value.text) }
     )
 }

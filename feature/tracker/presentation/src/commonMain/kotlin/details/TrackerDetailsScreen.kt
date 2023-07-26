@@ -13,10 +13,11 @@ import ru.alexgladkov.odyssey.core.backpress.OnBackPressedDispatcher
 import utils.formatDuration
 
 @Composable
-fun TrackerDetailsScreen() {
+fun TrackerDetailsScreen(recordId: String? = null) {
     val rootController = LocalRootController.current
-    StoredViewModel(factory = { TrackerDetailsViewModel() }) { viewModel ->
+    StoredViewModel(factory = { TrackerDetailsViewModel(recordId) }) { viewModel ->
         val state by viewModel.viewStates().observeAsState()
+        val duration by viewModel.durationFlow.observeAsState()
         val action by viewModel.viewActions().observeAsState()
         val project by viewModel.projectFlow.observeAsState()
         TrackerDetailsView(
@@ -25,7 +26,7 @@ fun TrackerDetailsScreen() {
             task = state.task,
             description = state.description,
             start = state.start,
-            duration = state.duration.formatDuration(),
+            duration = duration.formatDuration(),
             projectsSuggestions = state.projectSuggestions,
             taskSuggestions = state.taskSuggestions,
             descriptionSuggestions = state.descriptionSuggestions,

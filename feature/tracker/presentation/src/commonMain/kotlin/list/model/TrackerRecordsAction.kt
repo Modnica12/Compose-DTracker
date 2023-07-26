@@ -2,5 +2,5 @@ package list.model
 
 sealed interface TrackerRecordsAction {
 
-    object NavigateToDetails: TrackerRecordsAction
+    data class NavigateToDetails(val recordId: String? = null): TrackerRecordsAction
 }
