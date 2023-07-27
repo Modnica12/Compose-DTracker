@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -92,7 +93,7 @@ private fun DateGroupCard(
         Column(modifier = Modifier.fillMaxWidth()) {
             DateHeader(date = dateGroup.date, totalTime = dateGroup.totalTime)
             Spacer(modifier = Modifier.height(dimens.medium))
-            dateGroup.items.forEach { item ->
+            dateGroup.items.forEachIndexed { index, item ->
                 when (item) {
                     is TrackerListItem.TaskGroup -> TrackerTaskGroup(
                         taskGroup = item,
@@ -104,6 +105,9 @@ private fun DateGroupCard(
                         record = item,
                         onClick = onRecordClick
                     )
+                }
+                if (index != dateGroup.items.lastIndex) {
+                    ListDivider(modifier = Modifier.padding(horizontal = dimens.medium))
                 }
             }
         }
@@ -138,8 +142,11 @@ private fun TrackerTaskGroup(
         )
         AnimatedVisibility(visible = taskGroup.isExpanded) {
             Column(modifier = Modifier.fillMaxWidth()) {
-                taskGroup.records.forEach { record ->
+                taskGroup.records.forEachIndexed { index, record ->
                     TaskGroupRecord(record = record, onClick = onRecordClick)
+                    if (index != taskGroup.records.lastIndex) {
+                        ListDivider(modifier = Modifier.padding(start = dimens.extraLarge, end = dimens.medium))
+                    }
                 }
                 Spacer(modifier = Modifier.height(dimens.default))
             }
@@ -248,5 +255,13 @@ private fun HeaderText(modifier: Modifier = Modifier, text: String) {
         modifier = modifier,
         text = text,
         style = typography.headerNormal.copy(color = colors.onPrimaryContainerText)
+    )
+}
+
+@Composable
+private fun ListDivider(modifier: Modifier = Modifier) {
+    Divider(
+        modifier = modifier,
+        color = colors.divider
     )
 }

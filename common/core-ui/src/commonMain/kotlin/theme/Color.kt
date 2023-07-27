@@ -9,6 +9,7 @@ data class TrackerColors(
     val primaryContainerBackground: Color,
     val primaryContainerBorder: Color,
     val onPrimaryContainerText: Color,
+    val divider: Color,
     val accent: Color,
     val accentContainer: Color,
     val errorColor: Color,
@@ -20,6 +21,7 @@ internal val defaultPalette = TrackerColors(
     primaryContainerBackground = Color(0xFFF2F2F2),
     primaryContainerBorder = Color(0xFFD2D2D2),
     onPrimaryContainerText = Color(0xFF0D0D0D),
+    divider = Color(0xFFD8D8D8),
     accent = Color(0xFFD00000),
     accentContainer = Color(0xFFEECCCC),
     errorColor = Color(0xFF9D0000)
@@ -31,6 +33,7 @@ internal val darkPalette = TrackerColors(
     primaryContainerBackground = Color(0xFF0F0F0F),
     primaryContainerBorder = Color(0xFF2F2F2F),
     onPrimaryContainerText = Color(0xFFF2F2F2),
+    divider = Color(0xFF2D2D2D),
     accent = Color(0xFFD00000),
     accentContainer = Color(0xFF500000),
     errorColor = Color(0xFF9D0000)
