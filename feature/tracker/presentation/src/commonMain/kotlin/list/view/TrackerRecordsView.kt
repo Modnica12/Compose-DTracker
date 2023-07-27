@@ -86,7 +86,7 @@ private fun DateGroupCard(
         modifier = Modifier
             .padding(horizontal = dimens.normal)
             .background(color = colors.primaryContainerBackground, shape = shapes.roundedDefault)
-            .padding(all = dimens.medium)
+            .padding(vertical = dimens.medium)
             .fillMaxWidth(),
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -112,7 +112,7 @@ private fun DateGroupCard(
 
 @Composable
 private fun DateHeader(date: String, totalTime: String) {
-    Row(modifier = Modifier.fillMaxWidth()) {
+    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = dimens.medium)) {
         HeaderText(text = date)
         Spacer(modifier = Modifier.weight(1f))
         Text(
@@ -141,6 +141,7 @@ private fun TrackerTaskGroup(
                 taskGroup.records.forEach { record ->
                     TaskGroupRecord(record = record, onClick = onRecordClick)
                 }
+                Spacer(modifier = Modifier.height(dimens.default))
             }
         }
     }
@@ -158,8 +159,9 @@ private fun TaskGroupHeader(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = dimens.medium)
-            .clickable(interactionSource = interactionSource, indication = null, onClick = onClick),
+            .clickable(interactionSource = interactionSource, indication = null, onClick = onClick)
+            .padding(horizontal = dimens.medium)
+            .padding(vertical = dimens.normal),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
@@ -182,9 +184,9 @@ private fun TaskGroupRecord(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = dimens.default)
-            .padding(start = dimens.extraLarge)
-            .clickable { onClick(record.id) },
+            .clickable { onClick(record.id) }
+            .padding(vertical = dimens.normal)
+            .padding(start = dimens.extraLarge, end = dimens.medium),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(modifier = Modifier.height(dimens.normal))
@@ -213,8 +215,9 @@ private fun TrackerRecord(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = dimens.default)
             .clickable { onClick(record.id) }
+            .padding(horizontal = dimens.medium)
+            .padding(vertical = dimens.default)
     ) {
         Spacer(modifier = Modifier.height(dimens.normal))
         Column(modifier = Modifier.weight(1f)) {
