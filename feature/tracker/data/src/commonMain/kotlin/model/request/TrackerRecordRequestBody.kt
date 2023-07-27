@@ -26,6 +26,6 @@ fun TrackerRecord.toRequestBody(): TrackerRecordRequestBody =
         activityId = activity?.id,
         task = task?.name ?: "",
         description = description,
-        start = start,
+        start = start.toString(), // хм)
         duration = duration
     )

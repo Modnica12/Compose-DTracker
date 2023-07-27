@@ -25,7 +25,8 @@ fun TrackerDetailsScreen(recordId: String? = null) {
             activity = state.selectedActivity?.name,
             task = state.task,
             description = state.description,
-            start = state.start,
+            start = state.startTime,
+            end = state.endTime,
             duration = duration.formatDuration(),
             projectsSuggestions = state.projectSuggestions,
             taskSuggestions = state.taskSuggestions,
@@ -53,6 +54,12 @@ fun TrackerDetailsScreen(recordId: String? = null) {
             onActivityClick = { viewModel.obtainEvent(TrackerDetailsEvent.SelectActivityClicked)},
             onActivitySelect = { id ->
                 viewModel.obtainEvent(TrackerDetailsEvent.ActivitySelected(id))
+            },
+            onStartTimeChange = { startTime ->
+                viewModel.obtainEvent(TrackerDetailsEvent.StartTimeChanged(startTime))
+            },
+            onEndTimeChange = { endTime ->
+                viewModel.obtainEvent(TrackerDetailsEvent.EndTimeChanged(endTime))
             },
             onCloseClick = { viewModel.obtainEvent(TrackerDetailsEvent.CloseClicked) },
             onCreateClick = { viewModel.obtainEvent(TrackerDetailsEvent.CreateClicked) }

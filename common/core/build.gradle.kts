@@ -14,6 +14,8 @@ kotlin {
             dependencies {
                 api(libs.kotlin.serialization)
 
+                api(libs.kotlin.datetime)
+
                 api(libs.koin)
 
                 api(libs.ktor.core)

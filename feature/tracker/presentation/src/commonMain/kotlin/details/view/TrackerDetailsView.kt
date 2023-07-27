@@ -31,15 +31,17 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import components.ClickableTag
+import components.DefaultSingleLineTextField
 import components.DropDownMenu
 import components.DropDownMenuItem
-import components.FullWidthTextField
+import components.FullWidthSingleLineTextField
 import model.TrackerActivity
 import model.TrackerProject
 import model.TrackerTaskHint
 import theme.Theme.colors
 import theme.Theme.dimens
 import theme.Theme.typography
+import utils.MaskVisualTransformation
 
 @Composable
 fun TrackerDetailsView(
@@ -48,6 +50,7 @@ fun TrackerDetailsView(
     task: String,
     description: String,
     start: String,
+    end: String?,
     duration: String,
     projectsSuggestions: List<TrackerProject>,
     taskSuggestions: List<TrackerTaskHint>,
@@ -62,6 +65,8 @@ fun TrackerDetailsView(
     onDescriptionSelect: (String) -> Unit,
     onActivityClick: () -> Unit,
     onActivitySelect: (Int) -> Unit,
+    onStartTimeChange: (String) -> Unit,
+    onEndTimeChange: (String) -> Unit,
     onCloseClick: () -> Unit,
     onCreateClick: () -> Unit,
 ) {
@@ -120,6 +125,7 @@ fun TrackerDetailsView(
             onClick = onActivityClick,
             onSelect = onActivitySelect
         )
+        // fix exit animation
         AnimatedVisibility(visible = !errorText.isNullOrBlank()) {
             Spacer(modifier = Modifier.height(dimens.medium))
             Text(
@@ -127,6 +133,28 @@ fun TrackerDetailsView(
                 style = typography.headerNormal,
                 color = colors.accent,
             )
+        }
+
+        Spacer(modifier = Modifier.height(dimens.medium))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            DefaultSingleLineTextField(
+                modifier = Modifier.weight(2f),
+                value = start,
+                visualTransformation = MaskVisualTransformation("##:##"),
+                onValueChange = onStartTimeChange
+            )
+            Spacer(modifier = Modifier.weight(if (end != null) 1f else 3f))
+            if (end != null) {
+                DefaultSingleLineTextField(
+                    modifier = Modifier.weight(2f),
+                    value = end,
+                    visualTransformation = MaskVisualTransformation("##:##"),
+                    onValueChange = onEndTimeChange
+                )
+            }
         }
     }
 }
@@ -145,7 +173,7 @@ fun <T> TextFieldWithSuggestions(
     val isVisible = remember { mutableStateOf(false) }
     val textFieldSize = remember { mutableStateOf(Size.Zero) }
     Column(modifier = modifier) {
-        FullWidthTextField(
+        FullWidthSingleLineTextField(
             modifier = Modifier
                 .onGloballyPositioned { coordinates ->
                     // This value is used to assign to the DropDown the same width

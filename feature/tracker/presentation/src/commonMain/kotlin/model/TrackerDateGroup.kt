@@ -1,17 +1,17 @@
 package model
 
+import kotlinx.datetime.LocalDate
 import utils.formatDuration
-import utils.getDate
 
 data class TrackerDateGroup(
-    val date: String,
+    val date: LocalDate,
     val totalTime: String,
     val items: List<TrackerListItem>
 )
 
 fun List<TrackerRecord>.toDateGroups(): List<TrackerDateGroup> {
     val dateGroupedItems = this
-        .groupBy { record -> record.start.getDate() }
+        .groupBy { record -> record.start.date }
         .map { (date, records) ->
             val taskGroupedItems = records.groupBy { it.task?.name }
             TrackerDateGroup(

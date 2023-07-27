@@ -1,7 +1,8 @@
 package model
 
+import kotlinx.datetime.LocalDate
 import utils.formatDuration
-import utils.getDate
+import utils.getCurrentDateTime
 
 sealed class TrackerListItem {
 
@@ -17,7 +18,7 @@ sealed class TrackerListItem {
         val name: String,
         val project: String,
         val totalTime: String,
-        val date: String,
+        val date: LocalDate,
         val records: List<Record>,
         val isExpanded: Boolean
     ): TrackerListItem()
@@ -37,7 +38,7 @@ fun List<TrackerRecord>.mapToTaskGroup(): TrackerListItem.TaskGroup =
         name = firstOrNull()?.task?.name ?: "",
         project = firstOrNull()?.project?.key ?: "",
         totalTime = sumOf { item -> item.duration }.formatDuration(),
-        date = firstOrNull()?.start?.getDate() ?: "",
+        date = firstOrNull()?.start?.date ?: getCurrentDateTime().date, // хм)
         records = map { it.toPresentation() },
         isExpanded = false
     )

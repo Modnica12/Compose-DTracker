@@ -20,6 +20,10 @@ sealed interface TrackerDetailsEvent {
 
     data class ActivitySelected(val id: Int) : TrackerDetailsEvent
 
+    data class StartTimeChanged(val value: String): TrackerDetailsEvent
+
+    data class EndTimeChanged(val value: String): TrackerDetailsEvent
+
     object CloseClicked: TrackerDetailsEvent
 
     object CreateClicked: TrackerDetailsEvent

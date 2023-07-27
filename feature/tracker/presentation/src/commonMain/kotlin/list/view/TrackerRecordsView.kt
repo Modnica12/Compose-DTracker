@@ -63,7 +63,7 @@ private fun RecordsList(
             .fillMaxSize()
             .background(color = colors.primaryBackground)
     ) {
-        items(items = recordsItems, key = TrackerDateGroup::date) { item ->
+        items(items = recordsItems, key = { it.date.toString() }) { item ->
             Spacer(modifier = Modifier.height(dimens.medium))
             DateGroupCard(
                 dateGroup = item,
@@ -91,7 +91,7 @@ private fun DateGroupCard(
             .fillMaxWidth(),
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            DateHeader(date = dateGroup.date, totalTime = dateGroup.totalTime)
+            DateHeader(date = dateGroup.date.toString(), totalTime = dateGroup.totalTime)
             Spacer(modifier = Modifier.height(dimens.medium))
             dateGroup.items.forEachIndexed { index, item ->
                 when (item) {

@@ -19,10 +19,14 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDateTime
 import model.TrackerRecord
 import model.TrackerTask
 import model.TrackerTaskHint
 import usecase.StartTrackerTimerUseCase
+import utils.addDuration
+import utils.detailsTimeToLocal
+import utils.formatDetails
 
 @OptIn(FlowPreview::class)
 class TrackerDetailsViewModel(
@@ -103,12 +107,14 @@ class TrackerDetailsViewModel(
         mutableDurationFlow.value = duration
         projectTextFieldFlow.value = project?.key ?: ""
         taskTextFieldFlow.value = task?.name ?: ""
+        val endTime = if (recordId != null) start.addDuration(duration).time.formatDetails() else null
         viewState = viewState.copy(
             selectedProject = project,
             task = task?.name ?: "",
             description = description,
             selectedActivity = activity,
-            start = start
+            startTime = start.time.formatDetails(),
+            endTime = endTime
         )
     }
 
@@ -122,6 +128,8 @@ class TrackerDetailsViewModel(
             is TrackerDetailsEvent.DescriptionSelected -> descriptionSelected(viewEvent.value)
             is TrackerDetailsEvent.SelectActivityClicked -> selectActivityClicked()
             is TrackerDetailsEvent.ActivitySelected -> activitySelected(viewEvent.id)
+            is TrackerDetailsEvent.StartTimeChanged -> startTimeChanged(viewEvent.value)
+            is TrackerDetailsEvent.EndTimeChanged -> endTimeChanged(viewEvent.value)
             TrackerDetailsEvent.CloseClicked -> closeClicked()
             TrackerDetailsEvent.CreateClicked -> createClicked()
         }
@@ -185,6 +193,18 @@ class TrackerDetailsViewModel(
         }
     }
 
+    private fun startTimeChanged(startTime: String) {
+        if (startTime.length <= 4) {
+            viewState = viewState.copy(startTime = startTime)
+        }
+    }
+
+    private fun endTimeChanged(endTime: String) {
+        if (endTime.length <= 4) {
+            viewState = viewState.copy(endTime = endTime)
+        }
+    }
+
     private suspend fun startTracker() {
         viewState.apply {
             val projectId = selectedProject?.id
@@ -198,7 +218,7 @@ class TrackerDetailsViewModel(
                 activityId = selectedActivity?.id,
                 task = task,
                 description = description,
-                start = start
+                start = LocalDateTime(date = date, time = startTime.detailsTimeToLocal()).toString() + "Z"
             )
         }
     }
@@ -216,7 +236,7 @@ class TrackerDetailsViewModel(
                     project = viewState.selectedProject,
                     activity = viewState.selectedActivity,
                     task = TrackerTask(name = viewState.task, onYoutrack = false),
-                    start = viewState.start,
+                    start = LocalDateTime(date = viewState.date, time = viewState.startTime.detailsTimeToLocal()),
                     duration = durationFlow.value,
                     description = viewState.description
                 )

@@ -3,6 +3,7 @@ package model.response
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import model.TrackerRecord
+import utils.parseToDateTime
 
 @Serializable
 internal data class TrackerRecordRemote(
@@ -28,7 +29,7 @@ internal fun TrackerRecordRemote.toDomain(): TrackerRecord =
         project = project.toDomain(),
         activity = activity?.toDomain(),
         task = task.toDomain(),
-        start = start,
+        start = start.parseToDateTime(),
         duration = duration,
         description = description
     )

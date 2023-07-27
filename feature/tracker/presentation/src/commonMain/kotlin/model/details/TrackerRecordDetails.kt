@@ -1,8 +1,9 @@
 package model.details
 
-import utils.formatDuration
-import utils.getTime
+import kotlinx.datetime.LocalDateTime
 import model.TrackerRecord
+import utils.formatDuration
+import utils.getCurrentDateTime
 
 data class TrackerRecordDetails(
     val id: String?,
@@ -10,7 +11,7 @@ data class TrackerRecordDetails(
     val activity: ActivityPresentation?,
     val task: String?,
     val description: String?,
-    val start: String?,
+    val start: LocalDateTime,
     val duration: String?,
 ) {
 
@@ -24,7 +25,7 @@ data class TrackerRecordDetails(
             activity = null,
             task = null,
             description = null,
-            start = null,
+            start = getCurrentDateTime(),
             duration = null,
         )
     }
@@ -37,6 +38,6 @@ fun TrackerRecord.toDetails(): TrackerRecordDetails =
         activity = activity?.toPresentation(),
         task = task?.name,
         description = description,
-        start = start.getTime(),
+        start = start,
         duration = duration.formatDuration()
     )
