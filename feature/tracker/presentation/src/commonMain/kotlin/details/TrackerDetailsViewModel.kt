@@ -269,7 +269,7 @@ class TrackerDetailsViewModel(
                 task = task,
                 description = description,
                 start = LocalDateTime(date = date, time = startTime.detailsTimeToLocal())
-                    // Переводим из часового пояса пользователя
+                    // Mapping from user's timezone
                     .toUTC()
                     .toInstant(timeZone = TimeZone.UTC).toString()
             )
