@@ -44,7 +44,7 @@ internal class TrackerRecordsRepositoryImpl(
     }
 
     override suspend fun getCurrentRecord(): Result<Unit> =
-        // вынести в отдельную функцию withContext и try catch
+        // TODO: вынести в отдельную функцию withContext и try catch
         withContext(Dispatchers.IO) {
             try {
                 currentRecord.value = remoteSource.fetchCurrent().toDomain()

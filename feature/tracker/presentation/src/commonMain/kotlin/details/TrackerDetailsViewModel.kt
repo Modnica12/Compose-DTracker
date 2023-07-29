@@ -148,7 +148,7 @@ class TrackerDetailsViewModel(
         withViewModelScope {
             viewState.projectSuggestions.firstOrNull { it.id == id }?.let { selectedProject ->
                 viewState = viewState.copy(selectedProject = selectedProject)
-                // улетает лишний запрос
+                // TODO: улетает лишний запрос
                 projectTextFieldFlow.value = selectedProject.key
             }
         }
@@ -295,7 +295,7 @@ class TrackerDetailsViewModel(
                     description = viewState.description
                 )
             } else {
-                // update record
+                // TODO: update record
             }
         }
             .invokeOnCompletion { viewAction = TrackerDetailsAction.NavigateBack }

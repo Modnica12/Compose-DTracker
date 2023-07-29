@@ -29,7 +29,7 @@ interface TrackerRecordsRepository {
 
     suspend fun addRecord(trackerRecord: TrackerRecord): Result<TrackerRecord>
 
-    // мб id можно брать из модельки
+    // TODO: мб id можно брать из модельки
     suspend fun updateRecord(id: String, trackerRecord: TrackerRecord): Result<TrackerRecord>
 
     suspend fun getProjects(key: String): Result<List<TrackerProject>>

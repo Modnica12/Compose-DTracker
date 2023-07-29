@@ -18,7 +18,7 @@ import models.ListResponse
 
 internal class KtorTrackerDataSource(private val httpClient: HttpClient) {
 
-    // try catch
+    // TODO: try catch
     suspend fun fetchRecords(): List<TrackerRecordRemote> {
         val id = "..." // paste your id
         val response: ListResponse<TrackerRecordRemote> = httpClient.post("dtracker/list") {

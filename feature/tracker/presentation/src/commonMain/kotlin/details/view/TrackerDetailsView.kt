@@ -125,11 +125,11 @@ fun TrackerDetailsView(
             onClick = onActivityClick,
             onSelect = onActivitySelect
         )
-        // fix exit animation
+        // TODO: fix exit animation
         AnimatedVisibility(visible = !errorText.isNullOrBlank()) {
             Spacer(modifier = Modifier.height(dimens.medium))
             Text(
-                text = errorText ?: "", // не нравится)
+                text = errorText ?: "", // TODO: не нравится)
                 style = typography.headerNormal,
                 color = colors.accent,
             )
@@ -201,7 +201,7 @@ fun <T> TextFieldWithSuggestions(
                 }
             ),
             expanded = isVisible.value,
-            offset = IntOffset(x = 0, y = textFieldSize.value.height.toInt() + 30), // use dp
+            offset = IntOffset(x = 0, y = textFieldSize.value.height.toInt() + 30), // TODO: use dp
             onDismissRequest = {
                 isVisible.value = false
             }
