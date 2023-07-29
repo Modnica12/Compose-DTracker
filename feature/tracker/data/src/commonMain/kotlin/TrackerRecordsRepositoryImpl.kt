@@ -1,3 +1,4 @@
+
 import database.TrackerRecordCache
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -13,7 +14,6 @@ import model.TrackerRecord
 import model.TrackerTaskHint
 import model.request.TrackerRecordRequestBody
 import model.request.toRequestBody
-import model.response.TrackerRecordRemote
 import model.response.toDomain
 import sqldelight.database.SqlDelightTrackerDataSource
 import sqldelight.database.toCache
@@ -36,8 +36,9 @@ internal class TrackerRecordsRepositoryImpl(
     }
 
     override suspend fun fetchRecords() = withContext(Dispatchers.IO) {
-        remoteSource.fetchRecords().map(TrackerRecordRemote::toDomain).let { records ->
+        remoteSource.fetchRecords().let { records ->
             cacheSource.clear()
+            // Using same time format for remote and cache
             records.forEach { record -> cacheSource.insertRecord(record.toCache()) }
         }
     }

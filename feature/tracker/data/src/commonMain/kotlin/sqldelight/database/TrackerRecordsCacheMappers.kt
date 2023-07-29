@@ -4,6 +4,7 @@ import database.TrackerRecordCache
 import model.TrackerRecord
 import model.cache.toCache
 import model.cache.toDomain
+import model.response.TrackerRecordRemote
 import utils.parseToDateTime
 
 internal fun TrackerRecordCache.toDomain(): TrackerRecord =
@@ -23,7 +24,18 @@ internal fun TrackerRecord.toCache(): TrackerRecordCache =
         project = project?.toCache(),
         activity = activity?.toCache(),
         task = task?.toCache(),
-        start = start.toString(), // хм)
+        start = start.toString(),
+        duration = duration.toLong(),
+        description = description
+    )
+
+internal fun TrackerRecordRemote.toCache(): TrackerRecordCache =
+    TrackerRecordCache(
+        id = id,
+        project = project.toCache(),
+        activity = activity?.toCache(),
+        task = task.toCache(),
+        start = start,
         duration = duration.toLong(),
         description = description
     )

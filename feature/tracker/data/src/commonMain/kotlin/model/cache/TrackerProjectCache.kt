@@ -3,6 +3,7 @@ package model.cache
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import model.TrackerProject
+import model.response.TrackerProjectRemote
 
 @Serializable
 data class TrackerProjectCache(
@@ -20,4 +21,7 @@ internal fun TrackerProjectCache.toDomain(): TrackerProject =
     TrackerProject(id = id, key = key, name = name, color = color)
 
 internal fun TrackerProject.toCache(): TrackerProjectCache =
+    TrackerProjectCache(id = id, key = key, name = name, color = color)
+
+internal fun TrackerProjectRemote.toCache(): TrackerProjectCache =
     TrackerProjectCache(id = id, key = key, name = name, color = color)

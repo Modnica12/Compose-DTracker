@@ -5,9 +5,8 @@ import com.adeo.kviewmodel.BaseSharedViewModel
 import di.getKoinInstance
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import list.model.TrackerRecordsAction
 import list.model.TrackerRecordsEvent
@@ -107,6 +106,7 @@ internal class TrackerRecordsViewModel : BaseSharedViewModel<TrackerRecordsState
     }
 
     private fun navigateToDetails(recordId: String? = null) {
+        // TODO: invokeOnCompletion попробовать
         withViewModelScope {
             viewAction = TrackerRecordsAction.NavigateToDetails(recordId = recordId)
             delay(100)
@@ -119,11 +119,12 @@ internal class TrackerRecordsViewModel : BaseSharedViewModel<TrackerRecordsState
         timerJob = null
         timerJob = viewModelScope.launch {
             startTrackerTimerUseCase(startDuration)
-                .onEach { duration ->
+                .collect { duration ->
+                    ensureActive()
+                    // TODO: duplicating
                     val currentRecord = repository.currentRecord.value
                     repository.currentRecord.value = currentRecord?.copy(duration = duration)
                 }
-                .collect()
         }
     }
 

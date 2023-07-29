@@ -1,20 +1,20 @@
 package utils
 
 import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.UtcOffset
+import kotlinx.datetime.periodUntil
+import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
 fun String.parseToDateTime(): LocalDateTime {
-    // Remove Z at the end
-    return LocalDateTime.parse(this.split("Z").firstOrNull() ?: this)
-        .toInstant(offset = UtcOffset.ZERO)
-        .toLocalDateTime(timeZone = TimeZone.currentSystemDefault())
+    return toInstant().toLocalDateTime(timeZone = TimeZone.currentSystemDefault())
 }
 
 fun getCurrentDateTime(): LocalDateTime {
@@ -46,4 +46,24 @@ fun String.detailsTimeToLocal(): LocalTime {
     val hours = take(2).toInt()
     val minutes = takeLast(2).toInt()
     return LocalTime(hour = hours, minute = minutes, second = 0, nanosecond = 0)
+}
+
+fun getOffsetInHours(): Int {
+    val now = getCurrentDateTime()
+    val nowWithoutOffset = now.toInstant(offset = UtcOffset.ZERO)
+    val nowWithOffset = now.toInstant(TimeZone.currentSystemDefault())
+    return nowWithoutOffset.periodUntil(nowWithOffset, timeZone = TimeZone.UTC).hours
+}
+
+fun LocalDateTime.plusHours(hours: Int): LocalDateTime {
+    return toInstant(offset = UtcOffset.ZERO)
+        .apply { println(this) }
+        .plus(hours, DateTimeUnit.HOUR, timeZone = TimeZone.UTC)
+        .apply { println(this) }
+        .toLocalDateTime(timeZone = TimeZone.UTC)
+        .apply { println(this) }
+}
+
+fun LocalDateTime.toUTC(): LocalDateTime {
+    return plusHours(getOffsetInHours())
 }

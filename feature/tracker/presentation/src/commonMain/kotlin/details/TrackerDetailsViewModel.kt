@@ -8,18 +8,22 @@ import details.model.TrackerDetailsState
 import di.getKoinInstance
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.UtcOffset
+import kotlinx.datetime.toInstant
 import model.TrackerRecord
 import model.TrackerTask
 import model.TrackerTaskHint
@@ -27,6 +31,7 @@ import usecase.StartTrackerTimerUseCase
 import utils.addDuration
 import utils.detailsTimeToLocal
 import utils.formatDetails
+import utils.toUTC
 
 @OptIn(FlowPreview::class)
 class TrackerDetailsViewModel(
@@ -57,15 +62,13 @@ class TrackerDetailsViewModel(
 
         withViewModelScope {
             if (recordId != null) {
-                repository.getRecordWithId(recordId)?.setData()
+                repository.getRecordWithId(recordId)?.apply { println(this) }?.setData()
             } else if (repository.currentRecord.value == null) {
                 startTimer(startDuration = 0)
             } else {
-                repository.currentRecord.value?.setData()
-                repository.currentRecord.collect { currentRecord ->
-                    currentRecord?.apply {
-                        startTimer(startDuration = duration)
-                    }
+                repository.currentRecord.value?.apply {
+                    setData()
+                    startTimer(startDuration = duration)
                 }
             }
         }
@@ -194,18 +197,65 @@ class TrackerDetailsViewModel(
     }
 
     private fun startTimeChanged(startTime: String) {
-        if (startTime.length <= 4) {
+        if (startTime.length <= TIME_LENGTH) {
             viewState = viewState.copy(startTime = startTime)
+            if (startTime.length == TIME_LENGTH) {
+                val startTimeSeconds = LocalDateTime(
+                    date = viewState.date,
+                    time = startTime.detailsTimeToLocal()
+                )
+                    .toInstant(timeZone = TimeZone.currentSystemDefault())
+                    .epochSeconds
+                val endTime = viewState.endTime
+                if (recordId != null && endTime != null) {
+                    val endTimeInSeconds = LocalDateTime(
+                        date = viewState.date,
+                        time = endTime.detailsTimeToLocal()
+                    )
+                        .toInstant(timeZone = TimeZone.currentSystemDefault())
+                        .epochSeconds
+                    if (endTimeInSeconds > startTimeSeconds) {
+                        val diff = endTimeInSeconds - startTimeSeconds
+                        mutableDurationFlow.value = diff.toInt()
+                    }
+                } else {
+                    val now = Clock.System.now()
+
+                    if (now.epochSeconds > startTimeSeconds) {
+                        val diff = now.epochSeconds - startTimeSeconds
+                        startTimer(startDuration = diff.toInt())
+                    }
+                }
+            }
         }
     }
 
     private fun endTimeChanged(endTime: String) {
-        if (endTime.length <= 4) {
+        if (endTime.length <= TIME_LENGTH) {
             viewState = viewState.copy(endTime = endTime)
+
+            if (endTime.length == TIME_LENGTH && recordId != null) {
+                val startTimeSeconds = LocalDateTime(
+                    date = viewState.date,
+                    time = viewState.startTime.detailsTimeToLocal()
+                )
+                    .toInstant(offset = UtcOffset.ZERO)
+                    .epochSeconds
+                val endTimeInSeconds = LocalDateTime(
+                    date = viewState.date,
+                    time = endTime.detailsTimeToLocal()
+                )
+                    .toInstant(offset = UtcOffset.ZERO)
+                    .epochSeconds
+                if (endTimeInSeconds > startTimeSeconds) {
+                    val diff = endTimeInSeconds - startTimeSeconds
+                    mutableDurationFlow.value = diff.toInt()
+                }
+            }
         }
     }
 
-    private suspend fun startTracker() {
+    private suspend fun saveChanges() {
         viewState.apply {
             val projectId = selectedProject?.id
             if (projectId == null) {
@@ -218,7 +268,10 @@ class TrackerDetailsViewModel(
                 activityId = selectedActivity?.id,
                 task = task,
                 description = description,
-                start = LocalDateTime(date = date, time = startTime.detailsTimeToLocal()).toString() + "Z"
+                start = LocalDateTime(date = date, time = startTime.detailsTimeToLocal())
+                    // Переводим из часового пояса пользователя
+                    .toUTC()
+                    .toInstant(timeZone = TimeZone.UTC).toString()
             )
         }
     }
@@ -228,9 +281,10 @@ class TrackerDetailsViewModel(
     }
 
     private fun createClicked() {
+        // TODO: убрать самостоятельный учет, просто обновлять данными с бэка
         viewModelScope.launch {
             if (recordId == null) {
-                startTracker()
+                saveChanges()
                 repository.currentRecord.value = TrackerRecord(
                     id = "",
                     project = viewState.selectedProject,
@@ -251,11 +305,11 @@ class TrackerDetailsViewModel(
         timerJob?.cancel()
         timerJob = null
         timerJob = viewModelScope.launch {
-            startTrackerTimerUseCase(startDuration)
-                .onEach { duration ->
+            startTrackerTimerUseCase(startDuration = startDuration)
+                .collect { duration ->
+                    ensureActive()
                     mutableDurationFlow.value = duration
                 }
-                .collect()
         }
     }
 
@@ -267,5 +321,9 @@ class TrackerDetailsViewModel(
             .drop(1)
             .onEach(onEach)
             .launchIn(viewModelScope)
+    }
+
+    companion object {
+        private const val TIME_LENGTH = 4
     }
 }
