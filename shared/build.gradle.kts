@@ -15,6 +15,7 @@ kotlin {
         framework {
             baseName = "shared"
             isStatic = true
+            export(project(":common:core"))
         }
         extraSpecAttributes["resources"] = "['src/commonMain/resources/**', 'src/iosMain/resources/**']"
     }
@@ -37,6 +38,12 @@ kotlin {
             dependencies {
                 implementation(libs.kviewmodel.odessey)
                 implementation(libs.accompanist.systemuicontroller)
+            }
+        }
+
+        iosMain {
+            dependencies {
+                api(project(":common:core"))
             }
         }
     }
