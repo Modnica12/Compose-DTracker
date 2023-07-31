@@ -14,9 +14,11 @@ import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import com.adeo.kviewmodel.compose.observeAsState
 import com.adeo.kviewmodel.odyssey.StoredViewModel
+import kotlinx.coroutines.launch
 import list.model.TrackerRecordsAction
 import list.model.TrackerRecordsEvent
 import list.model.TrackerRecordsScreenState
@@ -25,8 +27,9 @@ import list.view.TrackerRecordsErrorView
 import list.view.TrackerRecordsLoadingView
 import list.view.TrackerRecordsView
 import navigation.NavigationTree
-import ru.alexgladkov.odyssey.compose.extensions.present
+import ru.alexgladkov.odyssey.compose.RootController
 import ru.alexgladkov.odyssey.compose.local.LocalRootController
+import ru.alexgladkov.odyssey.core.animations.AnimationType
 import theme.Theme.colors
 import theme.Theme.dimens
 import theme.Theme.shapes
@@ -34,6 +37,7 @@ import theme.Theme.shapes
 @Composable
 fun TrackerRecordsScreen() {
     val rootController = LocalRootController.current
+    val coroutineScope = rememberCoroutineScope()
     StoredViewModel(factory = { TrackerRecordsViewModel() }) { viewModel ->
         val state by viewModel.viewStates().observeAsState()
         val action = viewModel.viewActions().observeAsState()
@@ -75,12 +79,14 @@ fun TrackerRecordsScreen() {
             TrackerRecordsScreenState.Error -> TrackerRecordsErrorView()
         }
 
-        action.value?.let { action ->
-            when (action) {
-                is TrackerRecordsAction.NavigateToDetails -> {
-                    rootController.present(NavigationTree.Tracker.Details.name, params = action.recordId)
+        action.value?.apply {
+            coroutineScope.launch {
+                when (this@apply) {
+                    is TrackerRecordsAction.NavigateToDetails ->
+                        rootController.navigateToDetails(recordId = recordId)
                 }
             }
+                .invokeOnCompletion { viewModel.clearAction() }
         }
     }
 }
@@ -104,4 +110,12 @@ private fun TrackerButton(tracking: Boolean, onClick: () -> Unit) {
             )
         }
     }
+}
+
+private fun RootController.navigateToDetails(recordId: String?) {
+    launch(
+        screen = NavigationTree.Tracker.Details.name,
+        params = recordId,
+        animationType = AnimationType.Present(animationTime = 300)
+    )
 }

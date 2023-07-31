@@ -4,7 +4,6 @@ import TrackerRecordsRepository
 import com.adeo.kviewmodel.BaseSharedViewModel
 import di.getKoinInstance
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
@@ -107,11 +106,11 @@ internal class TrackerRecordsViewModel : BaseSharedViewModel<TrackerRecordsState
 
     private fun navigateToDetails(recordId: String? = null) {
         // TODO: invokeOnCompletion попробовать
-        withViewModelScope {
             viewAction = TrackerRecordsAction.NavigateToDetails(recordId = recordId)
-            delay(100)
-            viewAction = null
-        }
+    }
+
+    fun clearAction() {
+        viewAction = null
     }
 
     private fun startTracker(startDuration: Int) {
