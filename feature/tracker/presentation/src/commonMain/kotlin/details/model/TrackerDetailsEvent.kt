@@ -1,30 +1,25 @@
 package details.model
 
-import model.TrackerTaskHint
+import details.autocomplete.TrackerDetailsTextField
+import details.autocomplete.TrackerDetailsTextFieldSuggestion
 
-sealed interface TrackerDetailsEvent {
+internal sealed interface TrackerDetailsEvent {
 
-    data class ProjectValueChanged(val value: String) : TrackerDetailsEvent
+    data class TextFieldValueChanged(val textField: TrackerDetailsTextField) : TrackerDetailsEvent
 
-    data class ProjectSelected(val id: Int) : TrackerDetailsEvent
+    data class TextFieldSuggestionClicked(
+        val suggestion: TrackerDetailsTextFieldSuggestion
+    ) : TrackerDetailsEvent
 
-    data class TaskValueChanged(val value: String) : TrackerDetailsEvent
-
-    data class TaskSelected(val taskHint: TrackerTaskHint) : TrackerDetailsEvent
-
-    data class DescriptionValueChanged(val value: String) : TrackerDetailsEvent
-
-    data class DescriptionSelected(val value: String) : TrackerDetailsEvent
-
-    object SelectActivityClicked: TrackerDetailsEvent
+    object SelectActivityClicked : TrackerDetailsEvent
 
     data class ActivitySelected(val id: Int) : TrackerDetailsEvent
 
-    data class StartTimeChanged(val value: String): TrackerDetailsEvent
+    data class StartTimeChanged(val value: String) : TrackerDetailsEvent
 
-    data class EndTimeChanged(val value: String): TrackerDetailsEvent
+    data class EndTimeChanged(val value: String) : TrackerDetailsEvent
 
-    object CloseClicked: TrackerDetailsEvent
+    object CloseClicked : TrackerDetailsEvent
 
-    object CreateClicked: TrackerDetailsEvent
+    object CreateClicked : TrackerDetailsEvent
 }

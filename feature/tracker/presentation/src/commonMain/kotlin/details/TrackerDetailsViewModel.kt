@@ -2,22 +2,19 @@ package details
 
 import TrackerRecordsRepository
 import com.adeo.kviewmodel.BaseSharedViewModel
+import currentRecord.CurrentRecordManager
+import details.autocomplete.AutoCompleteTextChangedHandler
+import details.autocomplete.TrackerDetailsTextField
+import details.autocomplete.TrackerDetailsTextFieldSuggestion
 import details.model.TrackerDetailsAction
 import details.model.TrackerDetailsEvent
 import details.model.TrackerDetailsState
 import di.getKoinInstance
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
@@ -26,15 +23,13 @@ import kotlinx.datetime.UtcOffset
 import kotlinx.datetime.toInstant
 import model.TrackerRecord
 import model.TrackerTask
-import model.TrackerTaskHint
 import usecase.StartTrackerTimerUseCase
 import utils.addDuration
 import utils.detailsTimeToLocal
 import utils.formatDetails
 import utils.toUTC
 
-@OptIn(FlowPreview::class)
-class TrackerDetailsViewModel(
+internal class TrackerDetailsViewModel(
     private val recordId: String?
 ) : BaseSharedViewModel<TrackerDetailsState, TrackerDetailsAction, TrackerDetailsEvent>(
     initialState = TrackerDetailsState()
@@ -43,26 +38,45 @@ class TrackerDetailsViewModel(
     private val mutableDurationFlow = MutableStateFlow(0)
     val durationFlow: StateFlow<Int> = mutableDurationFlow.asStateFlow()
 
-    private val projectTextFieldFlow = MutableStateFlow("")
-    val projectFlow: StateFlow<String> = projectTextFieldFlow.asStateFlow()
-
-    private val taskTextFieldFlow = MutableStateFlow("")
-
-    private val descriptionTextFieldFlow = MutableStateFlow("")
-
     private val repository: TrackerRecordsRepository = getKoinInstance()
+    private val currentRecordManager = CurrentRecordManager(repository)
     private val startTrackerTimerUseCase = StartTrackerTimerUseCase()
+
+    private val autoCompleteHandler = AutoCompleteTextChangedHandler(
+        onFieldRequest = {},
+        requestProjectSuggestions = { pattern ->
+            repository.getProjects(key = pattern).getOrNull() ?: emptyList()
+        },
+        requestTaskSuggestion = { pattern ->
+            val projectIds = repository.currentRecord.value?.project?.id ?: 0
+            repository.getTasks(projectIds = projectIds, pattern = pattern)
+                .getOrNull()
+                ?: emptyList()
+        },
+        requestDescriptionSuggestion = { pattern ->
+            repository.getDescriptions(pattern = pattern)
+                .getOrNull()
+                ?: emptyList()
+        },
+        onProjectSelected = { project ->
+            viewState = viewState.copy(selectedProject = project)
+        },
+        onTaskSelected = { task ->
+            viewState = viewState.copy(selectedTask = task.name, selectedDescription = task.summary)
+        },
+        onDescriptionSelected = { description ->
+            viewState = viewState.copy(selectedDescription = description)
+        }
+    )
+
+    val textFieldsState = autoCompleteHandler.textFieldsState
 
     private var timerJob: Job? = null
 
     init {
-        initProjectTextField()
-        initTaskTextField()
-        initDescriptionTextField()
-
         withViewModelScope {
             if (recordId != null) {
-                repository.getRecordWithId(recordId)?.apply { println(this) }?.setData()
+                repository.getRecordWithId(recordId)?.setData()
             } else if (repository.currentRecord.value == null) {
                 startTimer(startDuration = 0)
             } else {
@@ -74,47 +88,20 @@ class TrackerDetailsViewModel(
         }
     }
 
-    private fun initProjectTextField() {
-        projectTextFieldFlow.collectTextFieldValues { projectValue ->
-            val trimmedProject = projectValue.trim()
-            val projects = repository.getProjects(key = trimmedProject).getOrNull() ?: emptyList()
-            viewState = viewState.copy(projectSuggestions = projects)
-        }
-    }
-
-    private fun initTaskTextField() {
-        taskTextFieldFlow.collectTextFieldValues { taskValue ->
-            val trimmedTask = taskValue.trim()
-            val projectIds = repository.currentRecord.value?.project?.id ?: 0
-            val tasks = repository.getTasks(
-                projectIds = projectIds,
-                pattern = trimmedTask
-            )
-                .getOrNull()
-                ?: emptyList()
-            viewState = viewState.copy(taskSuggestions = tasks)
-        }
-    }
-
-    private fun initDescriptionTextField() {
-        descriptionTextFieldFlow.collectTextFieldValues { descriptionValue ->
-            val trimmedDescription = descriptionValue.trim()
-            val descriptions = repository.getDescriptions(pattern = trimmedDescription)
-                .getOrNull()
-                ?: emptyList()
-            viewState = viewState.copy(descriptionSuggestions = descriptions)
-        }
-    }
-
     private fun TrackerRecord.setData() {
-        mutableDurationFlow.value = duration
-        projectTextFieldFlow.value = project?.key ?: ""
-        taskTextFieldFlow.value = task?.name ?: ""
+        val taskName = task?.name ?: ""
+        autoCompleteHandler.updateFieldsState {
+            copy(
+                projectText = project?.key ?: "",
+                taskText = taskName,
+                descriptionText = description
+            )
+        }
         val endTime = if (recordId != null) start.addDuration(duration).time.formatDetails() else null
         viewState = viewState.copy(
             selectedProject = project,
-            task = task?.name ?: "",
-            description = description,
+            selectedTask = taskName,
+            selectedDescription = description,
             selectedActivity = activity,
             startTime = start.time.formatDetails(),
             endTime = endTime
@@ -123,12 +110,11 @@ class TrackerDetailsViewModel(
 
     override fun obtainEvent(viewEvent: TrackerDetailsEvent) {
         when (viewEvent) {
-            is TrackerDetailsEvent.ProjectValueChanged -> projectValueChanged(viewEvent.value)
-            is TrackerDetailsEvent.ProjectSelected -> projectSelected(viewEvent.id)
-            is TrackerDetailsEvent.TaskValueChanged -> taskValueChanged(viewEvent.value)
-            is TrackerDetailsEvent.TaskSelected -> taskSelected(viewEvent.taskHint)
-            is TrackerDetailsEvent.DescriptionValueChanged -> descriptionValueChanged(viewEvent.value)
-            is TrackerDetailsEvent.DescriptionSelected -> descriptionSelected(viewEvent.value)
+            is TrackerDetailsEvent.TextFieldValueChanged -> textFieldValueChanged(viewEvent.textField)
+            is TrackerDetailsEvent.TextFieldSuggestionClicked -> textFieldSuggestionClicked(
+                viewEvent.suggestion
+            )
+
             is TrackerDetailsEvent.SelectActivityClicked -> selectActivityClicked()
             is TrackerDetailsEvent.ActivitySelected -> activitySelected(viewEvent.id)
             is TrackerDetailsEvent.StartTimeChanged -> startTimeChanged(viewEvent.value)
@@ -138,47 +124,12 @@ class TrackerDetailsViewModel(
         }
     }
 
-    private fun projectValueChanged(value: String) {
-        val errorMessage = if (value.isEmpty()) "Заполните ключ проекта" else null
-        viewState = viewState.copy(errorMessage = errorMessage)
-        projectTextFieldFlow.value = value
+    private fun textFieldValueChanged(textField: TrackerDetailsTextField) {
+        autoCompleteHandler.handleTextChange(textField)
     }
 
-    private fun projectSelected(id: Int) {
-        withViewModelScope {
-            viewState.projectSuggestions.firstOrNull { it.id == id }?.let { selectedProject ->
-                viewState = viewState.copy(selectedProject = selectedProject)
-                // TODO: улетает лишний запрос
-                projectTextFieldFlow.value = selectedProject.key
-            }
-        }
-    }
-
-    private fun taskValueChanged(value: String) {
-        setTask(newTask = value)
-    }
-
-    private fun taskSelected(taskHint: TrackerTaskHint) {
-        setTask(newTask = taskHint.name)
-        setDescription(newDescription = taskHint.summary)
-    }
-
-    private fun setTask(newTask: String) {
-        viewState = viewState.copy(task = newTask)
-        taskTextFieldFlow.value = newTask
-    }
-
-    private fun descriptionValueChanged(value: String) {
-        setDescription(newDescription = value)
-    }
-
-    private fun descriptionSelected(value: String) {
-        setDescription(newDescription = value)
-    }
-
-    private fun setDescription(newDescription: String) {
-        viewState = viewState.copy(description = newDescription)
-        descriptionTextFieldFlow.value = newDescription
+    private fun textFieldSuggestionClicked(suggestion: TrackerDetailsTextFieldSuggestion) {
+        autoCompleteHandler.handleSuggestionClick(suggestion)
     }
 
     private fun selectActivityClicked() {
@@ -197,7 +148,7 @@ class TrackerDetailsViewModel(
     }
 
     private fun startTimeChanged(startTime: String) {
-        if (startTime.length <= TIME_LENGTH) {
+        if (startTime.length <= TIME_LENGTH && startTime.all { it.isDigit() }) {
             viewState = viewState.copy(startTime = startTime)
             if (startTime.length == TIME_LENGTH) {
                 val startTimeSeconds = LocalDateTime(
@@ -231,7 +182,7 @@ class TrackerDetailsViewModel(
     }
 
     private fun endTimeChanged(endTime: String) {
-        if (endTime.length <= TIME_LENGTH) {
+        if (endTime.length <= TIME_LENGTH && endTime.all { it.isDigit() }) {
             viewState = viewState.copy(endTime = endTime)
 
             if (endTime.length == TIME_LENGTH && recordId != null) {
@@ -256,6 +207,7 @@ class TrackerDetailsViewModel(
     }
 
     private suspend fun saveChanges() {
+        println(viewState)
         viewState.apply {
             val projectId = selectedProject?.id
             if (projectId == null) {
@@ -266,12 +218,10 @@ class TrackerDetailsViewModel(
             repository.startTracker(
                 projectId = projectId,
                 activityId = selectedActivity?.id,
-                task = task,
-                description = description,
-                start = LocalDateTime(date = date, time = startTime.detailsTimeToLocal())
-                    // Mapping from user's timezone
-                    .toUTC()
-                    .toInstant(timeZone = TimeZone.UTC).toString()
+                task = selectedTask,
+                description = selectedDescription,
+                // Mapping from user's timezone
+                start = LocalDateTime(date = date, time = startTime.detailsTimeToLocal()).toUTC()
             )
         }
     }
@@ -281,19 +231,24 @@ class TrackerDetailsViewModel(
     }
 
     private fun createClicked() {
-        // TODO: убрать самостоятельный учет, просто обновлять данными с бэка
         viewModelScope.launch {
             if (recordId == null) {
                 saveChanges()
-                repository.currentRecord.value = TrackerRecord(
-                    id = "",
-                    project = viewState.selectedProject,
-                    activity = viewState.selectedActivity,
-                    task = TrackerTask(name = viewState.task, onYoutrack = false),
-                    start = LocalDateTime(date = viewState.date, time = viewState.startTime.detailsTimeToLocal()),
-                    duration = durationFlow.value,
-                    description = viewState.description
-                )
+                // TODO: убрать самостоятельный учет, просто обновлять данными с бэка
+                repository.updateCurrentRecord {
+                    copy(
+                        id = "",
+                        project = viewState.selectedProject,
+                        activity = viewState.selectedActivity,
+                        task = TrackerTask(name = viewState.selectedTask, onYoutrack = false),
+                        start = LocalDateTime(
+                            date = viewState.date,
+                            time = viewState.startTime.detailsTimeToLocal()
+                        ),
+                        duration = durationFlow.value,
+                        description = viewState.selectedDescription
+                    )
+                }
             } else {
                 // TODO: update record
             }
@@ -311,16 +266,6 @@ class TrackerDetailsViewModel(
                     mutableDurationFlow.value = duration
                 }
         }
-    }
-
-    private fun <T> Flow<T>.collectTextFieldValues(onEach: suspend (T) -> Unit) {
-        this
-            .debounce(1000)
-            .distinctUntilChanged()
-            // Don't trigger first initializing value set
-            .drop(1)
-            .onEach(onEach)
-            .launchIn(viewModelScope)
     }
 
     companion object {

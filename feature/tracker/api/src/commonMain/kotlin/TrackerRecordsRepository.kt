@@ -1,5 +1,7 @@
+
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.datetime.LocalDateTime
 import model.TrackerActivity
 import model.TrackerProject
 import model.TrackerRecord
@@ -7,7 +9,9 @@ import model.TrackerTaskHint
 
 interface TrackerRecordsRepository {
 
-    val currentRecord: MutableStateFlow<TrackerRecord?>
+    val currentRecord: StateFlow<TrackerRecord?>
+
+    fun updateCurrentRecord(transform: TrackerRecord.() -> TrackerRecord?)
 
     suspend fun getRecords(): Flow<List<TrackerRecord>>
 
@@ -22,7 +26,7 @@ interface TrackerRecordsRepository {
         activityId: Int?,
         task: String,
         description: String,
-        start: String
+        start: LocalDateTime
     ): Result<TrackerRecord>
 
     suspend fun stopTracker(): Result<TrackerRecord>

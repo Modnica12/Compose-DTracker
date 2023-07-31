@@ -4,8 +4,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import com.adeo.kviewmodel.compose.observeAsState
 import com.adeo.kviewmodel.odyssey.StoredViewModel
+import details.autocomplete.TrackerDetailsTextField.Description
+import details.autocomplete.TrackerDetailsTextField.Project
+import details.autocomplete.TrackerDetailsTextField.Task
+import details.autocomplete.TrackerDetailsTextFieldSuggestion
+import details.autocomplete.TrackerDetailsTextFieldSuggestion.*
 import details.model.TrackerDetailsAction
-import details.model.TrackerDetailsEvent
+import details.model.TrackerDetailsEvent.ActivitySelected
+import details.model.TrackerDetailsEvent.CloseClicked
+import details.model.TrackerDetailsEvent.CreateClicked
+import details.model.TrackerDetailsEvent.EndTimeChanged
+import details.model.TrackerDetailsEvent.SelectActivityClicked
+import details.model.TrackerDetailsEvent.StartTimeChanged
+import details.model.TrackerDetailsEvent.TextFieldSuggestionClicked
+import details.model.TrackerDetailsEvent.TextFieldValueChanged
 import details.view.TrackerDetailsView
 import ru.alexgladkov.odyssey.compose.local.LocalRootController
 import ru.alexgladkov.odyssey.core.backpress.BackPressedCallback
@@ -17,52 +29,42 @@ fun TrackerDetailsScreen(recordId: String? = null) {
     val rootController = LocalRootController.current
     StoredViewModel(factory = { TrackerDetailsViewModel(recordId) }) { viewModel ->
         val state by viewModel.viewStates().observeAsState()
+        val textFieldsState by viewModel.textFieldsState.observeAsState()
         val duration by viewModel.durationFlow.observeAsState()
         val action by viewModel.viewActions().observeAsState()
-        val project by viewModel.projectFlow.observeAsState()
         TrackerDetailsView(
-            project = project,
+            project = textFieldsState.projectText,
             activity = state.selectedActivity?.name,
-            task = state.task,
-            description = state.description,
+            task = textFieldsState.taskText,
+            description = textFieldsState.descriptionText,
             start = state.startTime,
             end = state.endTime,
             duration = duration.formatDuration(),
-            projectsSuggestions = state.projectSuggestions,
-            taskSuggestions = state.taskSuggestions,
-            descriptionSuggestions = state.descriptionSuggestions,
+            projectsSuggestions = textFieldsState.projectSuggestions,
+            taskSuggestions = textFieldsState.taskSuggestions,
+            descriptionSuggestions = textFieldsState.descriptionSuggestions,
             activitiesList = state.activitiesList,
             errorText = state.errorMessage,
-            onProjectChange = { value ->
-                viewModel.obtainEvent(TrackerDetailsEvent.ProjectValueChanged(value))
-            },
-            onProjectSelect = { id ->
-                viewModel.obtainEvent(TrackerDetailsEvent.ProjectSelected(id))
-            },
-            onTaskChange = { value ->
-                viewModel.obtainEvent(TrackerDetailsEvent.TaskValueChanged(value))
-            },
+            onProjectChange = { value -> viewModel.obtainEvent(TextFieldValueChanged(Project(value))) },
+            onProjectSelect = { id -> viewModel.obtainEvent(TextFieldSuggestionClicked(Project(id))) },
+            onTaskChange = { value -> viewModel.obtainEvent(TextFieldValueChanged(Task(value))) },
             onTaskSelect = { taskHint ->
-                viewModel.obtainEvent(TrackerDetailsEvent.TaskSelected(taskHint))
+                viewModel.obtainEvent(TextFieldSuggestionClicked(Task(taskHint)))
             },
             onDescriptionChange = { value ->
-                viewModel.obtainEvent(TrackerDetailsEvent.DescriptionValueChanged(value))
+                viewModel.obtainEvent(TextFieldValueChanged(Description(value)))
             },
             onDescriptionSelect = { value ->
-                viewModel.obtainEvent(TrackerDetailsEvent.DescriptionSelected(value))
+                viewModel.obtainEvent(
+                    TextFieldSuggestionClicked(TrackerDetailsTextFieldSuggestion.Description(value))
+                )
             },
-            onActivityClick = { viewModel.obtainEvent(TrackerDetailsEvent.SelectActivityClicked)},
-            onActivitySelect = { id ->
-                viewModel.obtainEvent(TrackerDetailsEvent.ActivitySelected(id))
-            },
-            onStartTimeChange = { startTime ->
-                viewModel.obtainEvent(TrackerDetailsEvent.StartTimeChanged(startTime))
-            },
-            onEndTimeChange = { endTime ->
-                viewModel.obtainEvent(TrackerDetailsEvent.EndTimeChanged(endTime))
-            },
-            onCloseClick = { viewModel.obtainEvent(TrackerDetailsEvent.CloseClicked) },
-            onCreateClick = { viewModel.obtainEvent(TrackerDetailsEvent.CreateClicked) }
+            onActivityClick = { viewModel.obtainEvent(SelectActivityClicked) },
+            onActivitySelect = { id -> viewModel.obtainEvent(ActivitySelected(id)) },
+            onStartTimeChange = { startTime -> viewModel.obtainEvent(StartTimeChanged(startTime)) },
+            onEndTimeChange = { endTime -> viewModel.obtainEvent(EndTimeChanged(endTime)) },
+            onCloseClick = { viewModel.obtainEvent(CloseClicked) },
+            onCreateClick = { viewModel.obtainEvent(CreateClicked) }
         )
 
         action?.let { action ->
@@ -76,7 +78,7 @@ fun TrackerDetailsScreen(recordId: String? = null) {
             onBackPressedDispatcher = OnBackPressedDispatcher().apply {
                 backPressedCallback = object : BackPressedCallback() {
                     override fun onBackPressed() {
-                        viewModel.obtainEvent(TrackerDetailsEvent.CloseClicked)
+                        viewModel.obtainEvent(CloseClicked)
                     }
                 }
             })

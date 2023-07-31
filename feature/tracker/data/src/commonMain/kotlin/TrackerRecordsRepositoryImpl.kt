@@ -4,9 +4,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
 import ktor.KtorTrackerDataSource
 import model.TrackerActivity
 import model.TrackerProject
@@ -24,7 +29,12 @@ internal class TrackerRecordsRepositoryImpl(
     private val cacheSource: SqlDelightTrackerDataSource
 ) : TrackerRecordsRepository {
 
-    override val currentRecord: MutableStateFlow<TrackerRecord?> = MutableStateFlow(null)
+    private val mutableCurrentRecord: MutableStateFlow<TrackerRecord?> = MutableStateFlow(null)
+    override val currentRecord: StateFlow<TrackerRecord?> = mutableCurrentRecord.asStateFlow()
+
+    override fun updateCurrentRecord(transform: TrackerRecord.() -> TrackerRecord?) {
+        mutableCurrentRecord.value = mutableCurrentRecord.value?.transform()
+    }
 
     override suspend fun getRecords(): Flow<List<TrackerRecord>> =
         cacheSource.getTrackerRecords()
@@ -47,7 +57,7 @@ internal class TrackerRecordsRepositoryImpl(
         // TODO: вынести в отдельную функцию withContext и try catch
         withContext(Dispatchers.IO) {
             try {
-                currentRecord.value = remoteSource.fetchCurrent().toDomain()
+                mutableCurrentRecord.value = remoteSource.fetchCurrent().toDomain()
                 Result.success(Unit)
             } catch (exception: Exception) {
                 Result.failure(exception)
@@ -59,7 +69,7 @@ internal class TrackerRecordsRepositoryImpl(
         activityId: Int?,
         task: String,
         description: String,
-        start: String
+        start: LocalDateTime
     ): Result<TrackerRecord> = withContext(Dispatchers.IO) {
         try {
             val requestBody = TrackerRecordRequestBody(
@@ -67,7 +77,8 @@ internal class TrackerRecordsRepositoryImpl(
                 activityId = activityId,
                 task = task,
                 description = description,
-                start = start,
+                // Mapping to format with Z at the end
+                start = start.toInstant(timeZone = TimeZone.UTC).toString(),
                 duration = null
             )
             val record = remoteSource.startTracker(requestBody = requestBody).toDomain()
@@ -80,7 +91,7 @@ internal class TrackerRecordsRepositoryImpl(
     override suspend fun stopTracker(): Result<TrackerRecord> =
         withContext(Dispatchers.IO) {
             try {
-                currentRecord.value = null
+                mutableCurrentRecord.value = null
                 Result.success(remoteSource.stopTracker().toDomain())
             } catch (exception: Exception) {
                 Result.failure(exception)

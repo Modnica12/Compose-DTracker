@@ -58,7 +58,7 @@ fun TrackerDetailsView(
     activitiesList: List<TrackerActivity>,
     errorText: String? = null,
     onProjectChange: (String) -> Unit,
-    onProjectSelect: (Int) -> Unit,
+    onProjectSelect: (TrackerProject) -> Unit,
     onTaskChange: (String) -> Unit,
     onTaskSelect: (TrackerTaskHint) -> Unit,
     onDescriptionChange: (String) -> Unit,
@@ -99,7 +99,7 @@ fun TrackerDetailsView(
             placeholder = "Ключ проекта",
             formatSuggestion = { key },
             onValueChange = onProjectChange,
-            onSelect = { project -> onProjectSelect(project.id) }
+            onSelect = onProjectSelect
         )
         Spacer(modifier = Modifier.height(dimens.medium))
         TextFieldWithSuggestions(
