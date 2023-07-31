@@ -43,7 +43,13 @@ internal class TrackerDetailsViewModel(
     private val startTrackerTimerUseCase = StartTrackerTimerUseCase()
 
     private val autoCompleteHandler = AutoCompleteTextChangedHandler(
-        onFieldRequest = {},
+        onFieldRequest = { textField ->
+            when (textField) {
+                is TrackerDetailsTextField.Project -> Unit
+                is TrackerDetailsTextField.Task -> viewState = viewState.copy(selectedTask = textField.text)
+                is TrackerDetailsTextField.Description -> viewState = viewState.copy(selectedDescription = textField.text)
+            }
+        },
         requestProjectSuggestions = { pattern ->
             repository.getProjects(key = pattern).getOrNull() ?: emptyList()
         },

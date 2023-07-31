@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -72,9 +74,10 @@ fun TrackerDetailsView(
 ) {
     Column(
         modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .background(color = colors.primaryContainerBackground)
             .padding(all = dimens.medium)
-            .fillMaxSize()
     ) {
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onCloseClick) {

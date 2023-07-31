@@ -37,7 +37,8 @@ fun DefaultTextField(
             textColor = colors.onPrimaryText,
             backgroundColor = colors.primaryBackground,
             unfocusedBorderColor = colors.primaryContainerBorder,
-            focusedBorderColor = colors.primaryContainerBorder
+            focusedBorderColor = colors.primaryContainerBorder,
+            cursorColor = colors.accent
         ),
         placeholder = {
             placeholder?.let {
