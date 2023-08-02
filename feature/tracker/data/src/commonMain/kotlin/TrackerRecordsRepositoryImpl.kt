@@ -45,11 +45,16 @@ internal class TrackerRecordsRepositoryImpl(
         return cacheSource.getRecordWithId(id = id)?.toDomain()
     }
 
-    override suspend fun fetchRecords() = withContext(Dispatchers.IO) {
-        remoteSource.fetchRecords().let { records ->
-            cacheSource.clear()
-            // Using same time format for remote and cache
-            records.forEach { record -> cacheSource.insertRecord(record.toCache()) }
+    override suspend fun fetchRecords(): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            remoteSource.fetchRecords().let { records ->
+                cacheSource.clear()
+                // Using same time format for remote and cache
+                records.forEach { record -> cacheSource.insertRecord(record.toCache()) }
+                Result.success(Unit)
+            }
+        } catch (exception: Exception) {
+            Result.failure(exception)
         }
     }
 

@@ -40,6 +40,7 @@ internal class TrackerRecordsViewModel : BaseSharedViewModel<TrackerRecordsState
             repository.getCurrentRecord()
         }
         viewModelScope.launch {
+            // TODO: handle error
             repository.fetchRecords()
         }
         viewModelScope.launch {
