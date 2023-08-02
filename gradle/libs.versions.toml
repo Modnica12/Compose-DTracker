@@ -19,7 +19,7 @@ sqldelight = "1.5.5"
 odessey = "1.3.1"
 kviewmodel = "0.14"
 accompanist = "0.30.1"
-places = "3.2.0"
+settings = "1.0.0"
 
 [libraries]
 androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
@@ -63,7 +63,7 @@ kviewmodel-compose = { group = "com.adeo", name = "kviewmodel-compose", version.
 kviewmodel-odessey = { group = "com.adeo", name = "kviewmodel-odyssey", version.ref = "kviewmodel" }
 
 accompanist-systemuicontroller = { group = "com.google.accompanist", name = "accompanist-systemuicontroller", version.ref = "accompanist" }
-places = { group = "com.google.android.libraries.places", name = "places", version.ref = "places" }
+settings = { group = "com.russhwolf", name = "multiplatform-settings", version.ref = "settings" }
 
 [plugins]
 

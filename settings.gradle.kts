@@ -25,3 +25,7 @@ include(":shared")
 include(":feature:tracker:api")
 include(":feature:tracker:data")
 include(":feature:tracker:presentation")
+
+include(":feature:auth:api")
+include(":feature:auth:data")
+include(":feature:auth:presentation")
