@@ -38,6 +38,7 @@ internal class TrackerDetailsViewModel(
     private val mutableDurationFlow = MutableStateFlow(0)
     val durationFlow: StateFlow<Int> = mutableDurationFlow.asStateFlow()
 
+    // TODO: add usecases
     private val repository: TrackerRecordsRepository = getKoinInstance()
     private val currentRecordManager = CurrentRecordManager(repository)
     private val startTrackerTimerUseCase = StartTrackerTimerUseCase()
@@ -54,7 +55,7 @@ internal class TrackerDetailsViewModel(
             repository.getProjects(key = pattern).getOrNull() ?: emptyList()
         },
         requestTaskSuggestion = { pattern ->
-            val projectIds = repository.currentRecord.value?.project?.id ?: 0
+            val projectIds = currentRecordManager.currentRecord.value?.project?.id ?: 0
             repository.getTasks(projectIds = projectIds, pattern = pattern)
                 .getOrNull()
                 ?: emptyList()
@@ -83,7 +84,7 @@ internal class TrackerDetailsViewModel(
         withViewModelScope {
             if (recordId != null) {
                 repository.getRecordWithId(recordId)?.setData()
-            } else if (repository.currentRecord.value == null) {
+            } else if (currentRecordManager.currentRecord.value == null) {
                 startTimer(startDuration = 0)
             } else {
                 repository.currentRecord.value?.apply {
