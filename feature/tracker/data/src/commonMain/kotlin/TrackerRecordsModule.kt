@@ -1,3 +1,4 @@
+import currentRecord.CurrentRecordManager
 import database.TrackerRecordsQueries
 import ktor.KtorTrackerDataSource
 import model.cache.TrackerActivityCache
@@ -30,4 +31,5 @@ fun recordsHistoryModule() = module {
     }
     factory<SqlDelightTrackerDataSource> { SqlDelightTrackerDataSource(trackerRecordsQueries = get()) }
     single<TrackerRecordsRepository> { TrackerRecordsRepositoryImpl(remoteSource = get(), cacheSource = get()) }
+    single<CurrentRecordManager> { CurrentRecordManager(repository = get()) }
 }

@@ -9,6 +9,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
+import utils.getCurrentDateTime
 import kotlin.coroutines.CoroutineContext
 
 class CurrentRecordManager(
@@ -34,11 +35,12 @@ class CurrentRecordManager(
         timerJob?.cancel()
         timerJob = launch {
             var duration = repository.currentRecord.value?.duration ?: 0
+            repository.updateCurrentRecord { copy(duration = duration) }
             while (true) {
-                repository.updateCurrentRecord { copy(duration = duration) }
+                delay(1000)
                 duration = repository.currentRecord.value?.duration ?: duration
                 duration += 1
-                delay(1000)
+                repository.updateCurrentRecord { copy(duration = duration) }
             }
         }
     }
@@ -94,16 +96,17 @@ class CurrentRecordManager(
         newDescription: String? = null,
         newStart: LocalDateTime? = null,
     ) {
-        repository.currentRecord.value?.apply {
-            (newProjectId ?: project?.id)?.let { projectId ->
-                launch {
-                    repository.startTracker(
-                        projectId = projectId,
-                        activityId = newActivityId ?: activity?.id,
-                        task = newTask ?: task?.name ?: "",
-                        description = newDescription ?: description,
-                        start = newStart ?: start
-                    )
+        val currentRecord = currentRecord.value
+        (newProjectId ?: currentRecord?.project?.id)?.let { projectId ->
+            launch {
+                repository.startTracker(
+                    projectId = projectId,
+                    activityId = newActivityId ?: currentRecord?.activity?.id,
+                    task = newTask ?: currentRecord?.task?.name ?: "",
+                    description = newDescription ?: currentRecord?.description ?: "",
+                    start = newStart ?: currentRecord?.start ?: getCurrentDateTime()
+                ).apply {
+                    repository.setCurrentRecord(getOrNull())
                 }
             }
         }

@@ -11,6 +11,8 @@ interface TrackerRecordsRepository {
 
     val currentRecord: StateFlow<TrackerRecord?>
 
+    fun setCurrentRecord(record: TrackerRecord?)
+
     fun updateCurrentRecord(transform: TrackerRecord.() -> TrackerRecord?)
 
     suspend fun getRecords(): Flow<List<TrackerRecord>>

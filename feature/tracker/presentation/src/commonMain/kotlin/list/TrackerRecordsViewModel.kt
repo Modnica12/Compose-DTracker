@@ -20,7 +20,7 @@ internal class TrackerRecordsViewModel : BaseViewModel<TrackerRecordsState, Trac
 ) {
 
     private val repository: TrackerRecordsRepository = getKoinInstance()
-    private val currentRecordManager = CurrentRecordManager(repository)
+    private val currentRecordManager: CurrentRecordManager = getKoinInstance()
 
     init {
         viewModelScope.launch {

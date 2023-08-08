@@ -32,6 +32,10 @@ internal class TrackerRecordsRepositoryImpl(
     private val mutableCurrentRecord: MutableStateFlow<TrackerRecord?> = MutableStateFlow(null)
     override val currentRecord: StateFlow<TrackerRecord?> = mutableCurrentRecord.asStateFlow()
 
+    override fun setCurrentRecord(record: TrackerRecord?) {
+        mutableCurrentRecord.value = record
+    }
+
     override fun updateCurrentRecord(transform: TrackerRecord.() -> TrackerRecord?) {
         mutableCurrentRecord.value = mutableCurrentRecord.value?.transform()
     }

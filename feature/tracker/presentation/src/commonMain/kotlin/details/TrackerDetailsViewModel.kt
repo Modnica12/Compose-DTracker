@@ -22,7 +22,6 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.UtcOffset
 import kotlinx.datetime.toInstant
 import model.TrackerRecord
-import model.TrackerTask
 import usecase.StartTrackerTimerUseCase
 import utils.addDuration
 import utils.detailsTimeToLocal
@@ -40,7 +39,7 @@ internal class TrackerDetailsViewModel(
 
     // TODO: add usecases
     private val repository: TrackerRecordsRepository = getKoinInstance()
-    private val currentRecordManager = CurrentRecordManager(repository)
+    private val currentRecordManager: CurrentRecordManager = getKoinInstance()
     private val startTrackerTimerUseCase = StartTrackerTimerUseCase()
 
     private val autoCompleteHandler = AutoCompleteTextChangedHandler(
@@ -213,7 +212,7 @@ internal class TrackerDetailsViewModel(
         }
     }
 
-    private suspend fun saveChanges() {
+    private fun saveChanges() {
         println(viewState)
         viewState.apply {
             val projectId = selectedProject?.id
@@ -222,7 +221,7 @@ internal class TrackerDetailsViewModel(
                 return@apply
             }
 
-            repository.startTracker(
+            currentRecordManager.updateRecord(
                 projectId = projectId,
                 activityId = selectedActivity?.id,
                 task = selectedTask,
@@ -241,21 +240,6 @@ internal class TrackerDetailsViewModel(
         viewModelScope.launch {
             if (recordId == null) {
                 saveChanges()
-                // TODO: убрать самостоятельный учет, просто обновлять данными с бэка
-                repository.updateCurrentRecord {
-                    copy(
-                        id = "",
-                        project = viewState.selectedProject,
-                        activity = viewState.selectedActivity,
-                        task = TrackerTask(name = viewState.selectedTask, onYoutrack = false),
-                        start = LocalDateTime(
-                            date = viewState.date,
-                            time = viewState.startTime.detailsTimeToLocal()
-                        ),
-                        duration = durationFlow.value,
-                        description = viewState.selectedDescription
-                    )
-                }
             } else {
                 // TODO: update record
             }
