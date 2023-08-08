@@ -14,11 +14,9 @@ import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import com.adeo.kviewmodel.compose.observeAsState
 import com.adeo.kviewmodel.odyssey.StoredViewModel
-import kotlinx.coroutines.launch
 import list.model.TrackerRecordsAction
 import list.model.TrackerRecordsEvent
 import list.model.TrackerRecordsScreenState
@@ -33,14 +31,13 @@ import ru.alexgladkov.odyssey.core.animations.AnimationType
 import theme.Theme.colors
 import theme.Theme.dimens
 import theme.Theme.shapes
+import utils.handleAction
 
 @Composable
 fun TrackerRecordsScreen() {
     val rootController = LocalRootController.current
-    val coroutineScope = rememberCoroutineScope()
     StoredViewModel(factory = { TrackerRecordsViewModel() }) { viewModel ->
         val state by viewModel.viewStates().observeAsState()
-        val action = viewModel.viewActions().observeAsState()
         val tracking = state.currentRecord.isTracking
         when (state.screenState) {
             TrackerRecordsScreenState.Idle -> Scaffold(
@@ -79,14 +76,11 @@ fun TrackerRecordsScreen() {
             TrackerRecordsScreenState.Error -> TrackerRecordsErrorView()
         }
 
-        action.value?.apply {
-            coroutineScope.launch {
-                when (this@apply) {
-                    is TrackerRecordsAction.NavigateToDetails ->
-                        rootController.navigateToDetails(recordId = recordId)
-                }
+        viewModel.handleAction {
+            when (this) {
+                is TrackerRecordsAction.NavigateToDetails ->
+                    rootController.navigateToDetails(recordId = recordId)
             }
-                .invokeOnCompletion { viewModel.clearAction() }
         }
     }
 }

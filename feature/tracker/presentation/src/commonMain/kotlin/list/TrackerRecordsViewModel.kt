@@ -1,7 +1,6 @@
 package list
 
 import TrackerRecordsRepository
-import com.adeo.kviewmodel.BaseSharedViewModel
 import currentRecord.CurrentRecordManager
 import di.getKoinInstance
 import kotlinx.coroutines.flow.catch
@@ -14,8 +13,9 @@ import model.TrackerListItem
 import model.details.TrackerRecordDetails
 import model.details.toDetails
 import model.toDateGroups
+import viewmodel.BaseViewModel
 
-internal class TrackerRecordsViewModel : BaseSharedViewModel<TrackerRecordsState, TrackerRecordsAction, TrackerRecordsEvent>(
+internal class TrackerRecordsViewModel : BaseViewModel<TrackerRecordsState, TrackerRecordsAction, TrackerRecordsEvent>(
     initialState = TrackerRecordsState()
 ) {
 
@@ -103,10 +103,6 @@ internal class TrackerRecordsViewModel : BaseSharedViewModel<TrackerRecordsState
     private fun navigateToDetails(recordId: String? = null) {
         // TODO: invokeOnCompletion попробовать
         viewAction = TrackerRecordsAction.NavigateToDetails(recordId = recordId)
-    }
-
-    fun clearAction() {
-        viewAction = null
     }
 
     private fun stopTracker() {
