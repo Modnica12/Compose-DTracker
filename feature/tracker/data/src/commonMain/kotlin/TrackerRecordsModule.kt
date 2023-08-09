@@ -10,6 +10,7 @@ import sqldelight.database.SqlDelightTrackerDataSource
 import sqldelight.database.createJsonColumAdapter
 import sqldelight.database.trackerSqlDelightModule
 import tracker.data.db.TrackerRecords
+import usecase.FetchRecordsUseCase
 
 fun recordsHistoryModule() = module {
     includes(trackerSqlDelightModule())
@@ -32,4 +33,5 @@ fun recordsHistoryModule() = module {
     factory<SqlDelightTrackerDataSource> { SqlDelightTrackerDataSource(trackerRecordsQueries = get()) }
     single<TrackerRecordsRepository> { TrackerRecordsRepositoryImpl(remoteSource = get(), cacheSource = get()) }
     single<CurrentRecordManager> { CurrentRecordManager(repository = get()) }
+    factory<FetchRecordsUseCase> { FetchRecordsUseCase(trackerRecordsRepository = get(), authRepository = get()) }
 }

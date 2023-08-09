@@ -14,7 +14,6 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(project(":feature:tracker:api"))
-                implementation(project(":common:core"))
                 implementation(libs.kotlin.serialization.json)
             }
         }

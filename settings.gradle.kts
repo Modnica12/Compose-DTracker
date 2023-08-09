@@ -22,6 +22,8 @@ include(":common:core-utils")
 include(":common:core-ui")
 include(":shared")
 
+include(":feature:splash:presentation")
+
 include(":feature:tracker:api")
 include(":feature:tracker:data")
 include(":feature:tracker:presentation")

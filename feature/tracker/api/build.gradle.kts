@@ -11,8 +11,8 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(project(":common:core"))
-                implementation(project(":common:core-utils"))
+                api(project(":common:core"))
+                api(project(":feature:auth:api"))
             }
         }
     }

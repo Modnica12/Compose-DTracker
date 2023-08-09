@@ -22,10 +22,14 @@ kotlin {
                 implementation(libs.ktor.serialization)
                 implementation(libs.ktor.negotiation)
                 implementation(libs.ktor.logging)
-                implementation(libs.ktor.auth)
 
                 api(libs.sqldelight.core)
                 api(libs.sqldelight.coroutines)
+
+                api(libs.settings)
+                api("androidx.security:security-crypto:1.0.0")
+
+                implementation(project(":feature:auth:api"))
             }
         }
 

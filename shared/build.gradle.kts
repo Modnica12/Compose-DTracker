@@ -26,8 +26,14 @@ kotlin {
                 api(project(":common:core"))
                 implementation(project(":common:core-ui"))
                 implementation(project(":common:core-utils"))
+
+                implementation(project(":feature:splash:presentation"))
+
                 implementation(project(":feature:tracker:data"))
                 implementation(project(":feature:tracker:presentation"))
+
+                implementation(project(":feature:auth:data"))
+                implementation(project(":feature:auth:presentation"))
 
                 implementation(libs.odessey.core)
                 implementation(libs.odessey.compose)

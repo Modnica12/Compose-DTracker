@@ -13,6 +13,7 @@ import model.TrackerListItem
 import model.details.TrackerRecordDetails
 import model.details.toDetails
 import model.toDateGroups
+import usecase.FetchRecordsUseCase
 import viewmodel.BaseViewModel
 
 internal class TrackerRecordsViewModel : BaseViewModel<TrackerRecordsState, TrackerRecordsAction, TrackerRecordsEvent>(
@@ -20,6 +21,7 @@ internal class TrackerRecordsViewModel : BaseViewModel<TrackerRecordsState, Trac
 ) {
 
     private val repository: TrackerRecordsRepository = getKoinInstance()
+    private val fetchRecordsUseCase: FetchRecordsUseCase = getKoinInstance()
     private val currentRecordManager: CurrentRecordManager = getKoinInstance()
 
     init {
@@ -40,8 +42,7 @@ internal class TrackerRecordsViewModel : BaseViewModel<TrackerRecordsState, Trac
             repository.getCurrentRecord()
         }
         viewModelScope.launch {
-            // TODO: handle error
-            repository.fetchRecords()
+            fetchRecordsUseCase()
         }
         viewModelScope.launch {
             currentRecordManager.currentRecord.collect { currentRecord ->

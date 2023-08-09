@@ -28,7 +28,7 @@ fun ComponentActivity.setupThemedNavigation() {
             val configuration = OdysseyConfiguration(
                 canvas = this,
                 backgroundColor = colors.primaryBackground,
-                startScreen = StartScreen.Custom(NavigationTree.Tracker.List.name),
+                startScreen = StartScreen.Custom(NavigationTree.Splash.SplashScreen.name),
                 statusBarColor = colors.primaryBackground.toArgb(),
                 navigationBarColor = colors.primaryBackground.toArgb(),
                 displayType = DisplayType.FullScreen

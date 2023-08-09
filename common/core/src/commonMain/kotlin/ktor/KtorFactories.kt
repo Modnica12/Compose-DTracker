@@ -24,7 +24,7 @@ fun createJson(): Json {
     }
 }
 
-fun createHttpClient(json: Json): HttpClient {
+fun createHttpClient(json: Json, tokenProvider: () -> String?): HttpClient {
     return HttpClient(KtorEngineFactory().createEngine()) {
 
         install(Logging) {
@@ -40,11 +40,12 @@ fun createHttpClient(json: Json): HttpClient {
 
         defaultRequest {
             url(BASE_URL)
-            header("Authorization", "Bearer $TOKEN")
+            tokenProvider()?.let { token ->
+                header("Authorization", "Bearer $token")
+            }
             contentType(ContentType.Application.Json.withCharset(Charsets.UTF_8))
         }
     }
 }
 
 private const val BASE_URL = "https://api.is.doubletapp.io/api/"
-private val TOKEN = "..." // paste your token

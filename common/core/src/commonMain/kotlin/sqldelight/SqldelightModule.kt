@@ -5,6 +5,6 @@ import sqldelight.database.SqlDelightDriverFactory
 
 internal fun sqlDelightModule() = module {
     single<SqlDelightDriverFactory> {
-        SqlDelightDriverFactory(get())
+        SqlDelightDriverFactory(platformConfiguration = get())
     }
 }

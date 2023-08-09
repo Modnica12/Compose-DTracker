@@ -19,7 +19,7 @@ interface TrackerRecordsRepository {
 
     suspend fun getRecordWithId(id: String): TrackerRecord?
 
-    suspend fun fetchRecords(): Result<Unit>
+    suspend fun fetchUserRecords(userId: String): Result<Unit>
 
     suspend fun getCurrentRecord(): Result<Unit>
 

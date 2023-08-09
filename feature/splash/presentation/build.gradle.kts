@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "${AppInfo.id}.auth.presentation"
+    namespace = "${AppInfo.id}.splash.presentation"
 }
 
 kotlin {

@@ -12,7 +12,7 @@ fun MainViewController(): UIViewController =
     ComposeUIViewController {
         AppTheme {
             val odysseyConfiguration = OdysseyConfiguration(
-                startScreen = StartScreen.Custom(NavigationTree.Tracker.List.name),
+                startScreen = StartScreen.Custom(NavigationTree.Splash.SplashScreen.name),
                 backgroundColor = colors.primaryBackground
             )
             setNavigationContent(odysseyConfiguration) {

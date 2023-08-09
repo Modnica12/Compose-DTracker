@@ -7,6 +7,7 @@ object PlatformSdk {
         startKoin {
             modules(
                 platformModule(platformConfiguration = platformConfiguration),
+                authModule(),
                 coreModule(),
                 recordsHistoryModule()
             )

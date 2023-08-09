@@ -18,11 +18,10 @@ import models.ListResponse
 
 internal class KtorTrackerDataSource(private val httpClient: HttpClient) {
 
-    suspend fun fetchRecords(): List<TrackerRecordRemote> {
-        val id = "..." // paste your id
+    suspend fun fetchRecords(userId: String): List<TrackerRecordRemote> {
         val response: ListResponse<TrackerRecordRemote> = httpClient.post("dtracker/list") {
             url {
-                appendPathSegments(id)
+                appendPathSegments(userId)
             }
             setBody(TrackerRecordsRequestBody())
         }.body()

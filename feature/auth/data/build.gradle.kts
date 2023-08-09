@@ -15,7 +15,6 @@ kotlin {
                 implementation(project(":feature:auth:api"))
                 implementation(project(":common:core"))
                 implementation(libs.kotlin.serialization.json)
-                implementation(libs.settings)
             }
         }
     }
