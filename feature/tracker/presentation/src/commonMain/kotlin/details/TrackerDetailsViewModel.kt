@@ -229,6 +229,8 @@ internal class TrackerDetailsViewModel(
             }
 
             if (recordId == null) {
+                // Timer can be stopped from records list, we need to rerun it
+                currentRecordManager.startTimer()
                 currentRecordManager.updateRecord(
                     projectId = projectId,
                     activityId = selectedActivity?.id,
