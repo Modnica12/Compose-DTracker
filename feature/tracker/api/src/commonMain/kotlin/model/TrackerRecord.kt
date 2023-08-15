@@ -1,7 +1,7 @@
 package model
 
+import datetime.getCurrentDateTime
 import kotlinx.datetime.LocalDateTime
-import utils.getCurrentDateTime
 
 data class TrackerRecord(
     val id: String,

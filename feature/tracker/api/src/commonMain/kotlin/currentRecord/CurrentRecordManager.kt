@@ -1,15 +1,14 @@
 package currentRecord
 
 import TrackerRecordsRepository
+import datetime.getCurrentDateTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
-import utils.getCurrentDateTime
 import kotlin.coroutines.CoroutineContext
 
 class CurrentRecordManager(
@@ -18,7 +17,7 @@ class CurrentRecordManager(
 
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext
-        get() = job + Dispatchers.IO
+        get() = job + Dispatchers.Default
 
     private var timerJob: Job? = null
 

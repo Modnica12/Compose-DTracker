@@ -1,11 +1,11 @@
 package sqldelight.database
 
 import database.TrackerRecordCache
+import datetime.parseToDateTime
 import model.TrackerRecord
 import model.cache.toCache
 import model.cache.toDomain
 import model.response.TrackerRecordRemote
-import utils.parseToDateTime
 
 internal fun TrackerRecordCache.toDomain(): TrackerRecord =
     TrackerRecord(

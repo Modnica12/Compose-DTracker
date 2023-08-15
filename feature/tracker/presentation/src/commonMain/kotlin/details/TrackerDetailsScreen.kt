@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import com.adeo.kviewmodel.compose.observeAsState
 import com.adeo.kviewmodel.odyssey.StoredViewModel
+import datetime.formatDuration
 import details.autocomplete.TrackerDetailsTextField.Description
 import details.autocomplete.TrackerDetailsTextField.Project
 import details.autocomplete.TrackerDetailsTextField.Task
@@ -22,7 +23,6 @@ import details.view.TrackerDetailsView
 import ru.alexgladkov.odyssey.compose.local.LocalRootController
 import ru.alexgladkov.odyssey.core.backpress.BackPressedCallback
 import ru.alexgladkov.odyssey.core.backpress.OnBackPressedDispatcher
-import utils.formatDuration
 
 @Composable
 fun TrackerDetailsScreen(recordId: String? = null) {
@@ -31,7 +31,7 @@ fun TrackerDetailsScreen(recordId: String? = null) {
         val state by viewModel.viewStates().observeAsState()
         val textFieldsState by viewModel.textFieldsState.observeAsState()
         val duration by viewModel.durationFlow.observeAsState()
-        val action by viewModel.viewActions().observeAsState()
+        val actions by viewModel.viewActions().observeAsState()
         TrackerDetailsView(
             project = textFieldsState.projectText,
             activity = state.selectedActivity?.name,
@@ -67,7 +67,7 @@ fun TrackerDetailsScreen(recordId: String? = null) {
             onCreateClick = { viewModel.obtainEvent(CreateClicked) }
         )
 
-        action?.let { action ->
+        actions?.let { action ->
             when (action) {
                 is TrackerDetailsAction.NavigateBack -> {
                     rootController.popBackStack()

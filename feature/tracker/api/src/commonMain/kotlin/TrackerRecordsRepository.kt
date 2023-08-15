@@ -1,4 +1,3 @@
-
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.datetime.LocalDateTime
@@ -36,7 +35,7 @@ interface TrackerRecordsRepository {
     suspend fun addRecord(trackerRecord: TrackerRecord): Result<TrackerRecord>
 
     // TODO: мб id можно брать из модельки
-    suspend fun updateRecord(id: String, trackerRecord: TrackerRecord): Result<TrackerRecord>
+    suspend fun updateRecord(trackerRecord: TrackerRecord): Result<TrackerRecord>
 
     suspend fun getProjects(key: String): Result<List<TrackerProject>>
 

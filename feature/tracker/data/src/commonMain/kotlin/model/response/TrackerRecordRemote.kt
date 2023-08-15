@@ -1,9 +1,9 @@
 package model.response
 
+import datetime.parseToDateTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import model.TrackerRecord
-import utils.parseToDateTime
 
 @Serializable
 internal data class TrackerRecordRemote(

@@ -13,6 +13,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                implementation(project(":common:core"))
                 implementation(project(":feature:tracker:api"))
                 implementation(libs.kotlin.serialization.json)
             }

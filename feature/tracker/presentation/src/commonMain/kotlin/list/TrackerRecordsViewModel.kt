@@ -4,6 +4,7 @@ import TrackerRecordsRepository
 import currentRecord.CurrentRecordManager
 import di.getKoinInstance
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import list.model.TrackerRecordsAction
 import list.model.TrackerRecordsEvent
@@ -23,6 +24,7 @@ internal class TrackerRecordsViewModel : BaseViewModel<TrackerRecordsState, Trac
     private val repository: TrackerRecordsRepository = getKoinInstance()
     private val fetchRecordsUseCase: FetchRecordsUseCase = getKoinInstance()
     private val currentRecordManager: CurrentRecordManager = getKoinInstance()
+
 
     init {
         viewModelScope.launch {
@@ -45,7 +47,7 @@ internal class TrackerRecordsViewModel : BaseViewModel<TrackerRecordsState, Trac
             fetchRecordsUseCase()
         }
         viewModelScope.launch {
-            currentRecordManager.currentRecord.collect { currentRecord ->
+            currentRecordManager.currentRecord.collectLatest { currentRecord ->
                 currentRecord?.let { record ->
                     viewState = viewState.copy(currentRecord = record.toDetails())
                 } ?: run {

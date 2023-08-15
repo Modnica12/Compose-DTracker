@@ -1,10 +1,10 @@
 package details.model
 
+import datetime.formatDetails
+import datetime.getCurrentDateTime
 import kotlinx.datetime.LocalDate
 import model.TrackerActivity
 import model.TrackerProject
-import utils.formatDetails
-import utils.getCurrentDateTime
 
 data class TrackerDetailsState(
     val selectedProject: TrackerProject? = null,

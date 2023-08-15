@@ -3,6 +3,10 @@ package details
 import TrackerRecordsRepository
 import com.adeo.kviewmodel.BaseSharedViewModel
 import currentRecord.CurrentRecordManager
+import datetime.addDuration
+import datetime.detailsTimeToLocal
+import datetime.formatDetails
+import datetime.toUTC
 import details.autocomplete.AutoCompleteTextChangedHandler
 import details.autocomplete.TrackerDetailsTextField
 import details.autocomplete.TrackerDetailsTextFieldSuggestion
@@ -15,6 +19,7 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
@@ -23,10 +28,6 @@ import kotlinx.datetime.UtcOffset
 import kotlinx.datetime.toInstant
 import model.TrackerRecord
 import usecase.StartTrackerTimerUseCase
-import utils.addDuration
-import utils.detailsTimeToLocal
-import utils.formatDetails
-import utils.toUTC
 
 internal class TrackerDetailsViewModel(
     private val recordId: String?
@@ -213,7 +214,6 @@ internal class TrackerDetailsViewModel(
     }
 
     private fun saveChanges() {
-        println(viewState)
         viewState.apply {
             val projectId = selectedProject?.id
             if (projectId == null) {
@@ -252,7 +252,7 @@ internal class TrackerDetailsViewModel(
         timerJob = null
         timerJob = viewModelScope.launch {
             startTrackerTimerUseCase(startDuration = startDuration)
-                .collect { duration ->
+                .collectLatest { duration ->
                     ensureActive()
                     mutableDurationFlow.value = duration
                 }

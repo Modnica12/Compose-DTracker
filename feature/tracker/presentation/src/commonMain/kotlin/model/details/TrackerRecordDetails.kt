@@ -1,9 +1,9 @@
 package model.details
 
+import datetime.formatDuration
+import datetime.getCurrentDateTime
 import kotlinx.datetime.LocalDateTime
 import model.TrackerRecord
-import utils.formatDuration
-import utils.getCurrentDateTime
 
 data class TrackerRecordDetails(
     val id: String?,

@@ -1,4 +1,4 @@
-package utils
+package datetime
 
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit

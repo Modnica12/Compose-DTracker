@@ -1,4 +1,3 @@
-
 import database.TrackerRecordCache
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -8,7 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.update
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
@@ -23,6 +22,7 @@ import model.response.toDomain
 import sqldelight.database.SqlDelightTrackerDataSource
 import sqldelight.database.toCache
 import sqldelight.database.toDomain
+import utils.withResult
 
 internal class TrackerRecordsRepositoryImpl(
     private val remoteSource: KtorTrackerDataSource,
@@ -37,7 +37,7 @@ internal class TrackerRecordsRepositoryImpl(
     }
 
     override fun updateCurrentRecord(transform: TrackerRecord.() -> TrackerRecord?) {
-        mutableCurrentRecord.value = mutableCurrentRecord.value?.transform()
+        mutableCurrentRecord.update { it?.transform() }
     }
 
     override suspend fun getRecords(): Flow<List<TrackerRecord>> =
@@ -49,28 +49,19 @@ internal class TrackerRecordsRepositoryImpl(
         return cacheSource.getRecordWithId(id = id)?.toDomain()
     }
 
-    override suspend fun fetchUserRecords(userId: String): Result<Unit> = withContext(Dispatchers.IO) {
-        try {
+    override suspend fun fetchUserRecords(userId: String): Result<Unit> =
+        withResult {
             remoteSource.fetchRecords(userId).let { records ->
                 cacheSource.clear()
                 // Using same time format for remote and cache
                 records.forEach { record -> cacheSource.insertRecord(record.toCache()) }
-                Result.success(Unit)
             }
-        } catch (exception: Exception) {
-            Result.failure(exception)
         }
-    }
 
     override suspend fun getCurrentRecord(): Result<Unit> =
-        // TODO: вынести в отдельную функцию withContext и try catch
-        withContext(Dispatchers.IO) {
-            try {
-                mutableCurrentRecord.value = remoteSource.fetchCurrent().toDomain()
-                Result.success(Unit)
-            } catch (exception: Exception) {
-                Result.failure(exception)
-            }
+        withResult {
+            val currentRecordRemote = remoteSource.fetchCurrent()
+            mutableCurrentRecord.value = currentRecordRemote.toDomain()
         }
 
     override suspend fun startTracker(
@@ -79,110 +70,71 @@ internal class TrackerRecordsRepositoryImpl(
         task: String,
         description: String,
         start: LocalDateTime
-    ): Result<TrackerRecord> = withContext(Dispatchers.IO) {
-        try {
-            val requestBody = TrackerRecordRequestBody(
-                projectId = projectId,
-                activityId = activityId,
-                task = task,
-                description = description,
-                // Mapping to format with Z at the end
-                start = start.toInstant(timeZone = TimeZone.UTC).toString(),
-                duration = null
-            )
-            val record = remoteSource.startTracker(requestBody = requestBody).toDomain()
-            Result.success(record)
-        } catch (exception: Exception) {
-            Result.failure(exception)
-        }
+    ): Result<TrackerRecord> = withResult {
+        val requestBody = TrackerRecordRequestBody(
+            projectId = projectId,
+            activityId = activityId,
+            task = task,
+            description = description,
+            // Mapping to format with Z at the end
+            start = start.toInstant(timeZone = TimeZone.UTC).toString(),
+            duration = null
+        )
+        val remoteRecord = remoteSource.startTracker(requestBody = requestBody)
+        return@withResult remoteRecord.toDomain()
     }
 
     override suspend fun stopTracker(): Result<TrackerRecord> =
-        withContext(Dispatchers.IO) {
-            try {
-                mutableCurrentRecord.value = null
-                Result.success(remoteSource.stopTracker().toDomain())
-            } catch (exception: Exception) {
-                Result.failure(exception)
-            }
+        withResult {
+            mutableCurrentRecord.value = null
+            val remoteRecord = remoteSource.stopTracker()
+            return@withResult remoteRecord.toDomain()
         }
 
     override suspend fun addRecord(trackerRecord: TrackerRecord): Result<TrackerRecord> =
-        withContext(Dispatchers.IO) {
-            try {
-                val addedRecord = remoteSource.addTrackerRecord(
-                    requestBody = trackerRecord.toRequestBody()
-                ).toDomain()
-                Result.success(addedRecord)
-            } catch (exception: Exception) {
-                Result.failure(exception)
-            }
+        withResult {
+            val addedRecord = remoteSource.addTrackerRecord(
+                requestBody = trackerRecord.toRequestBody()
+            )
+            return@withResult addedRecord.toDomain()
         }
 
     override suspend fun updateRecord(
-        id: String,
         trackerRecord: TrackerRecord
-    ): Result<TrackerRecord> = withContext(Dispatchers.IO) {
-        try {
-            val updatedRecord = remoteSource.updateTrackerRecord(
-                id = id,
-                requestBody = trackerRecord.toRequestBody()
-            ).toDomain()
-            Result.success(updatedRecord)
-        } catch (exception: Exception) {
-            Result.failure(exception)
-        }
+    ): Result<TrackerRecord> = doWithResult {
+        remoteSource.updateTrackerRecord(
+            id = trackerRecord.id,
+            requestBody = trackerRecord.toRequestBody()
+        ).toDomain()
     }
 
     override suspend fun getProjects(key: String): Result<List<TrackerProject>> =
-        withContext(Dispatchers.IO) {
-            try {
-                val projects = remoteSource.getProjects(key = key).items.map { it.toDomain() }
-                Result.success(projects)
-            } catch (exception: Exception) {
-                Result.failure(exception)
-            }
+        withResult {
+            val remoteProjects = remoteSource.getProjects(key = key).items
+            return@withResult remoteProjects.map { it.toDomain() }
         }
 
     override suspend fun getTasks(
         projectIds: Int,
         pattern: String,
         limit: Int
-    ): Result<List<TrackerTaskHint>> =
-        withContext(Dispatchers.IO) {
-            try {
-                val tasks = remoteSource.getTasks(
-                    projectIds = projectIds,
-                    pattern = pattern,
-                    limit = limit
-                )
-                    .map { task -> task.toDomain() }
-                Result.success(tasks)
-            } catch (exception: Exception) {
-                Result.failure(exception)
-            }
-        }
+    ): Result<List<TrackerTaskHint>> = withResult {
+        val remoteTasks = remoteSource.getTasks(
+            projectIds = projectIds,
+            pattern = pattern,
+            limit = limit
+        )
+        return@withResult remoteTasks.map { task -> task.toDomain() }
+    }
 
     override suspend fun getDescriptions(pattern: String, limit: Int): Result<List<String>> =
-        withContext(Dispatchers.IO) {
-            try {
-                val descriptions = remoteSource.getDescriptions(
-                    pattern = pattern,
-                    limit = limit
-                )
-                Result.success(descriptions)
-            } catch (exception: Exception) {
-                Result.failure(exception)
-            }
+        withResult {
+            return@withResult remoteSource.getDescriptions(pattern = pattern, limit = limit)
         }
 
     override suspend fun getActivities(): Result<List<TrackerActivity>> =
-        withContext(Dispatchers.IO) {
-            try {
-                val activities = remoteSource.getActivities().items.map { it.toDomain() }
-                Result.success(activities)
-            } catch (exception: Exception) {
-                Result.failure(exception)
-            }
+        withResult {
+            val remoteActivities = remoteSource.getActivities().items
+            return@withResult remoteActivities.map { it.toDomain() }
         }
 }
