@@ -1,4 +1,6 @@
+
 import database.TrackerRecordCache
+import datetime.formatToRemoteTime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
@@ -9,8 +11,6 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toInstant
 import ktor.KtorTrackerDataSource
 import model.TrackerActivity
 import model.TrackerProject
@@ -54,7 +54,7 @@ internal class TrackerRecordsRepositoryImpl(
             remoteSource.fetchRecords(userId).let { records ->
                 cacheSource.clear()
                 // Using same time format for remote and cache
-                records.forEach { record -> cacheSource.insertRecord(record.toCache()) }
+                records.forEach { record -> cacheSource.insertOrUpdateRecord(record.toCache()) }
             }
         }
 
@@ -76,8 +76,7 @@ internal class TrackerRecordsRepositoryImpl(
             activityId = activityId,
             task = task,
             description = description,
-            // Mapping to format with Z at the end
-            start = start.toInstant(timeZone = TimeZone.UTC).toString(),
+            start = start.formatToRemoteTime(),
             duration = null
         )
         val remoteRecord = remoteSource.startTracker(requestBody = requestBody)
@@ -101,11 +100,13 @@ internal class TrackerRecordsRepositoryImpl(
 
     override suspend fun updateRecord(
         trackerRecord: TrackerRecord
-    ): Result<TrackerRecord> = doWithResult {
-        remoteSource.updateTrackerRecord(
+    ): Result<TrackerRecord> = withResult {
+        val updatedRecordRemote = remoteSource.updateTrackerRecord(
             id = trackerRecord.id,
             requestBody = trackerRecord.toRequestBody()
-        ).toDomain()
+        )
+        cacheSource.insertOrUpdateRecord(updatedRecordRemote.toCache())
+        return@withResult updatedRecordRemote.toDomain()
     }
 
     override suspend fun getProjects(key: String): Result<List<TrackerProject>> =

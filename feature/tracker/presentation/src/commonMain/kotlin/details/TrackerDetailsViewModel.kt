@@ -27,6 +27,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.UtcOffset
 import kotlinx.datetime.toInstant
 import model.TrackerRecord
+import model.TrackerTask
 import usecase.StartTrackerTimerUseCase
 
 internal class TrackerDetailsViewModel(
@@ -83,36 +84,42 @@ internal class TrackerDetailsViewModel(
     init {
         withViewModelScope {
             if (recordId != null) {
-                repository.getRecordWithId(recordId)?.setData()
+                repository.getRecordWithId(recordId)?.let { record ->
+                    mutableDurationFlow.value = record.duration
+                    setRecordData(record = record)
+                }
             } else if (currentRecordManager.currentRecord.value == null) {
                 startTimer(startDuration = 0)
             } else {
-                repository.currentRecord.value?.apply {
-                    setData()
-                    startTimer(startDuration = duration)
+                repository.currentRecord.value?.let { currentRecord ->
+                    setRecordData(record = currentRecord)
+                    startTimer(startDuration = currentRecord.duration)
                 }
             }
         }
     }
 
-    private fun TrackerRecord.setData() {
-        val taskName = task?.name ?: ""
-        autoCompleteHandler.updateFieldsState {
-            copy(
-                projectText = project?.key ?: "",
-                taskText = taskName,
-                descriptionText = description
+    private fun setRecordData(record: TrackerRecord) {
+        with(record) {
+            val taskName = task?.name ?: ""
+            autoCompleteHandler.updateFieldsState {
+                copy(
+                    projectText = project?.key ?: "",
+                    taskText = taskName,
+                    descriptionText = description
+                )
+            }
+            val endTime =
+                if (recordId != null) start.addDuration(duration).time.formatDetails() else null
+            viewState = viewState.copy(
+                selectedProject = project,
+                selectedTask = taskName,
+                selectedDescription = description,
+                selectedActivity = activity,
+                startTime = start.time.formatDetails(),
+                endTime = endTime
             )
         }
-        val endTime = if (recordId != null) start.addDuration(duration).time.formatDetails() else null
-        viewState = viewState.copy(
-            selectedProject = project,
-            selectedTask = taskName,
-            selectedDescription = description,
-            selectedActivity = activity,
-            startTime = start.time.formatDetails(),
-            endTime = endTime
-        )
     }
 
     override fun obtainEvent(viewEvent: TrackerDetailsEvent) {
@@ -213,7 +220,7 @@ internal class TrackerDetailsViewModel(
         }
     }
 
-    private fun saveChanges() {
+    private suspend fun saveChanges() {
         viewState.apply {
             val projectId = selectedProject?.id
             if (projectId == null) {
@@ -221,14 +228,31 @@ internal class TrackerDetailsViewModel(
                 return@apply
             }
 
-            currentRecordManager.updateRecord(
-                projectId = projectId,
-                activityId = selectedActivity?.id,
-                task = selectedTask,
-                description = selectedDescription,
-                // Mapping from user's timezone
-                start = LocalDateTime(date = date, time = startTime.detailsTimeToLocal()).toUTC()
-            )
+            if (recordId == null) {
+                currentRecordManager.updateRecord(
+                    projectId = projectId,
+                    activityId = selectedActivity?.id,
+                    task = selectedTask,
+                    description = selectedDescription,
+                    // Mapping from user's timezone
+                    start = LocalDateTime(date = date, time = startTime.detailsTimeToLocal()).toUTC()
+                )
+            } else {
+                repository.updateRecord(
+                    trackerRecord = TrackerRecord(
+                        id = recordId,
+                        project = selectedProject,
+                        activity = selectedActivity,
+                        task = TrackerTask(selectedTask, false),
+                        description = selectedDescription,
+                        start = LocalDateTime(
+                            date = date,
+                            time = startTime.detailsTimeToLocal()
+                        ).toUTC(),
+                        duration = durationFlow.value
+                    )
+                )
+            }
         }
     }
 
@@ -238,11 +262,7 @@ internal class TrackerDetailsViewModel(
 
     private fun createClicked() {
         viewModelScope.launch {
-            if (recordId == null) {
-                saveChanges()
-            } else {
-                // TODO: update record
-            }
+            saveChanges()
         }
             .invokeOnCompletion { viewAction = TrackerDetailsAction.NavigateBack }
     }

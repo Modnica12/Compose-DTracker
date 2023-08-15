@@ -9,7 +9,8 @@ CREATE TABLE TrackerRecordCache(
     task TEXT AS TrackerTaskCache,
     start TEXT NOT NULL,
     duration INTEGER NOT NULL,
-    description TEXT NOT NULL
+    description TEXT NOT NULL,
+    PRIMARY KEY(id)
 );
 
 selectAll:
@@ -21,8 +22,8 @@ SELECT *
 FROM TrackerRecordCache
 WHERE id LIKE ?;
 
-insert:
-INSERT OR FAIL INTO TrackerRecordCache(id, project, activity, task, start, duration, description)
+upsert:
+INSERT OR REPLACE INTO TrackerRecordCache(id, project, activity, task, start, duration, description)
 VALUES ?;
 
 clear:

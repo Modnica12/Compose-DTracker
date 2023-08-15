@@ -21,6 +21,7 @@ fun getCurrentDateTime(): LocalDateTime {
     return Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 }
 
+// TODO: вынести в утилзы для presentation
 fun Int.formatDuration(): String {
     val hours = this / 3600
     val minutes = (this - (hours * 3600)) / 60
@@ -28,10 +29,12 @@ fun Int.formatDuration(): String {
     return "${hours.toPrettyTime()}:${minutes.toPrettyTime()}:${seconds.toPrettyTime()}"
 }
 
+// TODO: вынести в утилзы для presentation
 private fun Int.toPrettyTime(): String {
     return toString().run { if (length < 2) "0$this" else this }
 }
 
+// TODO: вынести в утилзы для presentation
 fun LocalTime.formatDetails(): String {
     return "${hour.toPrettyTime()}${minute.toPrettyTime()}"
 }
@@ -42,10 +45,17 @@ fun LocalDateTime.addDuration(secondsDuration: Int): LocalDateTime {
         .toLocalDateTime(TimeZone.currentSystemDefault())
 }
 
+// TODO: вынести в утилзы для presentation
 fun String.detailsTimeToLocal(): LocalTime {
     val hours = take(2).toInt()
     val minutes = takeLast(2).toInt()
     return LocalTime(hour = hours, minute = minutes, second = 0, nanosecond = 0)
+}
+
+// TODO: вынести в утилзы для data
+// Mapping to format with Z at the end
+fun LocalDateTime.formatToRemoteTime(): String {
+    return toInstant(timeZone = TimeZone.UTC).toString()
 }
 
 fun getOffsetInHours(): Int {

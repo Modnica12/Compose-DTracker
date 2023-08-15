@@ -1,5 +1,6 @@
 package model.request
 
+import datetime.formatToRemoteTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import model.TrackerRecord
@@ -26,6 +27,7 @@ fun TrackerRecord.toRequestBody(): TrackerRecordRequestBody =
         activityId = activity?.id,
         task = task?.name ?: "",
         description = description,
-        start = start.toString(), // хм)
+        // TODO: вынести в утилзы
+        start = start.formatToRemoteTime(),
         duration = duration
     )

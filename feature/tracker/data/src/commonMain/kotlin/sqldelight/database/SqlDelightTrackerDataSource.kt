@@ -16,8 +16,8 @@ class SqlDelightTrackerDataSource(private val trackerRecordsQueries: TrackerReco
         return trackerRecordsQueries.getById(id = id).executeAsOneOrNull()
     }
 
-    suspend fun insertRecord(record: TrackerRecordCache) {
-        trackerRecordsQueries.insert(record)
+    suspend fun insertOrUpdateRecord(record: TrackerRecordCache) {
+        trackerRecordsQueries.upsert(record)
     }
 
     suspend fun clear() {
