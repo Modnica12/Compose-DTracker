@@ -52,7 +52,6 @@ internal class TrackerRecordsRepositoryImpl(
     override suspend fun fetchUserRecords(userId: String): Result<Unit> =
         withResult {
             remoteSource.fetchRecords(userId).let { records ->
-                cacheSource.clear()
                 // Using same time format for remote and cache
                 records.forEach { record -> cacheSource.insertOrUpdateRecord(record.toCache()) }
             }
