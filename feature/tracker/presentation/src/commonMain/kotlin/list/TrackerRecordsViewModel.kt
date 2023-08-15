@@ -41,7 +41,7 @@ internal class TrackerRecordsViewModel : BaseViewModel<TrackerRecordsState, Trac
                 }
         }
         viewModelScope.launch {
-            repository.getCurrentRecord()
+            repository.fetchCurrentRecord()
         }
         viewModelScope.launch {
             fetchRecordsUseCase()

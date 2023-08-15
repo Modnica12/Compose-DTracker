@@ -56,7 +56,7 @@ internal class TrackerDetailsViewModel(
             repository.getProjects(key = pattern).getOrNull() ?: emptyList()
         },
         requestTaskSuggestion = { pattern ->
-            val projectIds = currentRecordManager.currentRecord.value?.project?.id ?: 0
+            val projectIds = viewState.selectedProject?.id ?: 0
             repository.getTasks(projectIds = projectIds, pattern = pattern)
                 .getOrNull()
                 ?: emptyList()

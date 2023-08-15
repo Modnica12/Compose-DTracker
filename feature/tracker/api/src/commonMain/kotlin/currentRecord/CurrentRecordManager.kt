@@ -25,7 +25,7 @@ class CurrentRecordManager(
 
     init {
         launch {
-            repository.getCurrentRecord()
+            repository.fetchCurrentRecord()
             startTimer()
         }
     }

@@ -57,7 +57,7 @@ internal class TrackerRecordsRepositoryImpl(
             }
         }
 
-    override suspend fun getCurrentRecord(): Result<Unit> =
+    override suspend fun fetchCurrentRecord(): Result<Unit> =
         withResult {
             val currentRecordRemote = remoteSource.fetchCurrent()
             mutableCurrentRecord.value = currentRecordRemote.toDomain()

@@ -20,7 +20,7 @@ interface TrackerRecordsRepository {
 
     suspend fun fetchUserRecords(userId: String): Result<Unit>
 
-    suspend fun getCurrentRecord(): Result<Unit>
+    suspend fun fetchCurrentRecord(): Result<Unit>
 
     suspend fun startTracker(
         projectId: Int,
