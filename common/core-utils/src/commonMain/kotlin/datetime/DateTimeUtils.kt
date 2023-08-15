@@ -67,11 +67,8 @@ fun getOffsetInHours(): Int {
 
 fun LocalDateTime.plusHours(hours: Int): LocalDateTime {
     return toInstant(offset = UtcOffset.ZERO)
-        .apply { println(this) }
         .plus(hours, DateTimeUnit.HOUR, timeZone = TimeZone.UTC)
-        .apply { println(this) }
         .toLocalDateTime(timeZone = TimeZone.UTC)
-        .apply { println(this) }
 }
 
 fun LocalDateTime.toUTC(): LocalDateTime {

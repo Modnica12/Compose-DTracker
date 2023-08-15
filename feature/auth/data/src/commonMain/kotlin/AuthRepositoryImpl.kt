@@ -23,7 +23,6 @@ class AuthRepositoryImpl(
     }
 
     override fun isAuthenticated(): Boolean {
-        println(settingsDataSource.getToken())
         return settingsDataSource.getToken() != null
     }
 }
