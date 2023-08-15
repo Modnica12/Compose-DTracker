@@ -237,6 +237,7 @@ internal class TrackerDetailsViewModel(
                     task = selectedTask,
                     description = selectedDescription,
                     // Mapping from user's timezone
+                    // TODO: если создаем новую запись, то на бэк уйдет время с 00 секунд, т.к. храним только часы и минуты
                     start = LocalDateTime(date = date, time = startTime.detailsTimeToLocal()).toUTC()
                 )
             } else {
