@@ -12,6 +12,8 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                implementation(libs.kotlin.datetime)
+
                 implementation(libs.kviewmodel.core)
                 implementation(libs.kviewmodel.compose)
 

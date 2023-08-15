@@ -1,9 +1,9 @@
 package model.request
 
-import datetime.formatToRemoteTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import model.TrackerRecord
+import utils.formatToRemoteTime
 
 @Serializable
 data class TrackerRecordRequestBody(

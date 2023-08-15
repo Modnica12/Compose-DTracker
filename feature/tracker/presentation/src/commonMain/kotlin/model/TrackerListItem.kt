@@ -1,8 +1,8 @@
 package model
 
-import datetime.formatDuration
 import datetime.getCurrentDateTime
 import kotlinx.datetime.LocalDate
+import utils.formatDuration
 
 sealed class TrackerListItem {
 

@@ -4,8 +4,6 @@ import TrackerRecordsRepository
 import com.adeo.kviewmodel.BaseSharedViewModel
 import currentRecord.CurrentRecordManager
 import datetime.addDuration
-import datetime.detailsTimeToLocal
-import datetime.formatDetails
 import datetime.toUTC
 import details.autocomplete.AutoCompleteTextChangedHandler
 import details.autocomplete.TrackerDetailsTextField
@@ -29,6 +27,8 @@ import kotlinx.datetime.toInstant
 import model.TrackerRecord
 import model.TrackerTask
 import usecase.StartTrackerTimerUseCase
+import utils.detailsTimeToLocal
+import utils.formatDetails
 
 internal class TrackerDetailsViewModel(
     private val recordId: String?

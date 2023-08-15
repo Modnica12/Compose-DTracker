@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import com.adeo.kviewmodel.compose.observeAsState
 import com.adeo.kviewmodel.odyssey.StoredViewModel
-import datetime.formatDuration
 import details.autocomplete.TrackerDetailsTextField.Description
 import details.autocomplete.TrackerDetailsTextField.Project
 import details.autocomplete.TrackerDetailsTextField.Task
@@ -23,6 +22,7 @@ import details.view.TrackerDetailsView
 import ru.alexgladkov.odyssey.compose.local.LocalRootController
 import ru.alexgladkov.odyssey.core.backpress.BackPressedCallback
 import ru.alexgladkov.odyssey.core.backpress.OnBackPressedDispatcher
+import utils.formatDuration
 
 @Composable
 fun TrackerDetailsScreen(recordId: String? = null) {

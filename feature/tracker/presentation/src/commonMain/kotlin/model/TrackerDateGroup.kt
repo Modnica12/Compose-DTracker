@@ -1,7 +1,7 @@
 package model
 
-import datetime.formatDuration
 import kotlinx.datetime.LocalDate
+import utils.formatDuration
 
 data class TrackerDateGroup(
     val date: LocalDate,
