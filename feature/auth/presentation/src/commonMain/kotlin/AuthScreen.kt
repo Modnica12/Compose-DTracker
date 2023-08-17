@@ -24,7 +24,6 @@ fun AuthScreen() {
 
         viewModel.handleAction {
             when (this) {
-                // TODO: при навигации на экран трекера мы не авторизованы, только после перезахода все норм
                 AuthAction.NavigateToTracker -> rootController.launch(
                     screen = NavigationTree.Tracker.TrackerFlow.name,
                     animationType = defaultFadeAnimation()

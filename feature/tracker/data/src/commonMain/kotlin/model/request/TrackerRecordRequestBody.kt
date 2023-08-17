@@ -27,7 +27,6 @@ fun TrackerRecord.toRequestBody(): TrackerRecordRequestBody =
         activityId = activity?.id,
         task = task?.name ?: "",
         description = description,
-        // TODO: вынести в утилзы
         start = start.formatToRemoteTime(),
         duration = duration
     )

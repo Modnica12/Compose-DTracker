@@ -128,7 +128,6 @@ fun TrackerDetailsView(
             onClick = onActivityClick,
             onSelect = onActivitySelect
         )
-        // TODO: fix exit animation
         AnimatedVisibility(visible = !errorText.isNullOrBlank()) {
             Spacer(modifier = Modifier.height(dimens.medium))
             Text(
