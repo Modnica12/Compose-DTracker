@@ -104,13 +104,13 @@ private fun TrackerButton(tracking: Boolean, onClick: () -> Unit) {
         exit = scaleOut(),
     ) {
         FloatingActionButton(
-            backgroundColor = colors.primaryContainerBackground,
+            backgroundColor = colors.accent,
             onClick = onClick
         ) {
             Box(
                 modifier = Modifier
                     .size(dimens.medium)
-                    .background(color = colors.accent, shape = shapes.roundedSmall)
+                    .background(color = colors.primaryContainerBackground, shape = shapes.roundedSmall)
             )
         }
     }
