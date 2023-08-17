@@ -25,8 +25,8 @@ android {
         applicationId = AppInfo.id
         minSdk = (findProperty("android.minSdk") as String).toInt()
         targetSdk = (findProperty("android.targetSdk") as String).toInt()
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 10000
+        versionName = "1.0.0"
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
