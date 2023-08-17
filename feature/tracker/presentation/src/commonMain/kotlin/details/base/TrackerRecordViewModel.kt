@@ -59,7 +59,7 @@ internal abstract class TrackerRecordViewModel :
                 ?: emptyList()
         },
         onProjectSelected = { project ->
-            viewState = viewState.copy(selectedProject = project)
+            viewState = viewState.copy(selectedProject = project, errorMessage = null)
         },
         onTaskSelected = { task ->
             viewState = viewState.copy(selectedTask = task.name, selectedDescription = task.summary)
@@ -163,17 +163,6 @@ internal abstract class TrackerRecordViewModel :
 
     protected open fun endTimeChanged(endTimeInSeconds: Long) {}
 
-    private suspend fun saveChanges() {
-        viewState.apply {
-            val projectId = selectedProject?.id
-            if (projectId == null) {
-                viewState = viewState.copy(errorMessage = "Заполните ключ проекта")
-                return@apply
-            }
-            applyChanges(projectId = projectId)
-        }
-    }
-
     protected abstract suspend fun applyChanges(projectId: Int)
 
     private fun closeClicked() {
@@ -181,8 +170,13 @@ internal abstract class TrackerRecordViewModel :
     }
 
     private fun createClicked() {
+        val projectId = viewState.selectedProject?.id
+        if (projectId == null) {
+            viewState = viewState.copy(errorMessage = "Заполните ключ проекта")
+            return
+        }
         viewModelScope.launch {
-            saveChanges()
+            applyChanges(projectId = projectId)
         }
             .invokeOnCompletion { viewAction = TrackerRecordAction.NavigateBack }
     }
