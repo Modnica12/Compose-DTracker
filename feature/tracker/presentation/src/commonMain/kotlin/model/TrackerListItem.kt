@@ -38,7 +38,7 @@ fun List<TrackerRecord>.mapToTaskGroup(): TrackerListItem.TaskGroup =
         name = firstOrNull()?.task?.name ?: "",
         project = firstOrNull()?.project?.key ?: "",
         totalTime = sumOf { item -> item.duration }.formatDuration(),
-        date = firstOrNull()?.start?.date ?: getCurrentDateTime().date, // хм)
-        records = map { it.toPresentation() },
+        date = firstOrNull()?.start?.date ?: getCurrentDateTime().date, // TODO: хм)
+        records = sortedByDescending { it.start }.map { it.toPresentation() },
         isExpanded = false
     )

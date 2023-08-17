@@ -87,6 +87,7 @@ internal class TrackerRecordsRepositoryImpl(
         withResult {
             mutableCurrentRecord.value = null
             val remoteRecord = remoteSource.stopTracker()
+            cacheSource.insertOrUpdateRecord(record = remoteRecord.toCache())
             return@withResult remoteRecord.toDomain()
         }
 
