@@ -6,6 +6,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,12 +44,14 @@ fun TrackerRecordsView(
     modifier: Modifier = Modifier,
     recordsItems: List<TrackerDateGroup>,
     onRecordClick: (String) -> Unit,
+    onRecordLongClick: (String) -> Unit,
     onTaskGroupClick: (TrackerListItem.TaskGroup) -> Unit
 ) {
     RecordsList(
         modifier = modifier,
         recordsItems = recordsItems,
         onRecordClick = onRecordClick,
+        onRecordLongClick = onRecordLongClick,
         onTaskGroupClick = onTaskGroupClick
     )
 }
@@ -59,6 +62,7 @@ private fun RecordsList(
     modifier: Modifier = Modifier,
     recordsItems: List<TrackerDateGroup>,
     onRecordClick: (String) -> Unit,
+    onRecordLongClick: (String) -> Unit,
     onTaskGroupClick: (TrackerListItem.TaskGroup) -> Unit
 ) {
     LazyColumn(
@@ -74,6 +78,7 @@ private fun RecordsList(
                     .animateContentSize(),
                 dateGroup = item,
                 onRecordClick = onRecordClick,
+                onRecordLongClick = onRecordLongClick,
                 onTaskGroupClick = onTaskGroupClick
             )
         }
@@ -88,6 +93,7 @@ private fun DateGroupCard(
     modifier: Modifier = Modifier,
     dateGroup: TrackerDateGroup,
     onRecordClick: (String) -> Unit,
+    onRecordLongClick: (String) -> Unit,
     onTaskGroupClick: (TrackerListItem.TaskGroup) -> Unit
 ) {
     Box(
@@ -105,12 +111,14 @@ private fun DateGroupCard(
                     is TrackerListItem.TaskGroup -> TrackerTaskGroup(
                         taskGroup = item,
                         onClick = onTaskGroupClick,
-                        onRecordClick = onRecordClick
+                        onRecordClick = onRecordClick,
+                        onRecordLongClick = onRecordLongClick
                     )
 
                     is TrackerListItem.Record -> TrackerRecord(
                         record = item,
-                        onClick = onRecordClick
+                        onClick = onRecordClick,
+                        onLongClick = onRecordLongClick
                     )
                 }
                 if (index != dateGroup.items.lastIndex) {
@@ -139,6 +147,7 @@ private fun TrackerTaskGroup(
     taskGroup: TrackerListItem.TaskGroup,
     onClick: (TrackerListItem.TaskGroup) -> Unit,
     onRecordClick: (String) -> Unit,
+    onRecordLongClick: (String) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         TaskGroupHeader(
@@ -150,7 +159,7 @@ private fun TrackerTaskGroup(
         AnimatedVisibility(visible = taskGroup.isExpanded) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 taskGroup.records.forEachIndexed { index, record ->
-                    TaskGroupRecord(record = record, onClick = onRecordClick)
+                    TaskGroupRecord(record = record, onClick = onRecordClick, onLongClick = onRecordLongClick)
                     if (index != taskGroup.records.lastIndex) {
                         ListDivider(modifier = Modifier.padding(start = dimens.extraLarge, end = dimens.medium))
                     }
@@ -190,15 +199,20 @@ private fun TaskGroupHeader(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun TaskGroupRecord(
     record: TrackerListItem.Record,
-    onClick: (String) -> Unit
+    onClick: (String) -> Unit,
+    onLongClick: (String) -> Unit,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick(record.id) }
+            .combinedClickable(
+                onClick = { onClick(record.id) },
+                onLongClick = { onLongClick(record.id) }
+            )
             .padding(vertical = dimens.normal)
             .padding(start = dimens.extraLarge, end = dimens.medium),
         verticalAlignment = Alignment.CenterVertically
@@ -221,15 +235,20 @@ private fun TaskGroupRecord(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun TrackerRecord(
     record: TrackerListItem.Record,
-    onClick: (String) -> Unit
+    onClick: (String) -> Unit,
+    onLongClick: (String) -> Unit,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick(record.id) }
+            .combinedClickable(
+                onClick = { onClick(record.id) },
+                onLongClick = { onLongClick(record.id) }
+            )
             .padding(horizontal = dimens.medium)
             .padding(vertical = dimens.default)
     ) {

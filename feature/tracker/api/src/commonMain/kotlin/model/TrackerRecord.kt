@@ -5,7 +5,7 @@ import kotlinx.datetime.LocalDateTime
 
 data class TrackerRecord(
     val id: String,
-    val project: TrackerProject?,
+    val project: TrackerProject?, // TODO: null не нужен
     val activity: TrackerActivity?,
     val task: TrackerTask?,
     val start: LocalDateTime,

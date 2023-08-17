@@ -52,6 +52,15 @@ class CurrentRecordManager(
         }
     }
 
+    suspend fun rerunTimer() {
+        if (currentRecord.value != null) {
+            stopTimer()
+            // Avoid start/stop conflict
+            delay(100)
+        }
+        startTimer()
+    }
+
     fun updateProject(id: Int) {
         updateRecord(newProjectId = id)
     }
