@@ -1,3 +1,5 @@
+package settings
+
 import com.russhwolf.settings.Settings
 
 class SettingsAuthDataSource(private val settings: Settings) {

@@ -1,6 +1,6 @@
 package ktor
 
-import com.russhwolf.settings.Settings
+import AuthTokenProvider
 import org.koin.dsl.module
 
 internal fun ktorModule() = module {
@@ -8,12 +8,7 @@ internal fun ktorModule() = module {
         createJson()
     }
     single {
-        // TODO: использовать TokenProvider, реализуемый в модуле аутентификации
-        //  т.к. AuthRepository зависит от core модуля мы не можем юзать его здесь
-        val settings: Settings = get()
-        createHttpClient(
-            json = get(),
-            tokenProvider = { settings.getStringOrNull("auth_token_key") }
-        )
+        val tokenProvider: AuthTokenProvider = get()
+        createHttpClient(json = get(), tokenProvider = tokenProvider)
     }
 }

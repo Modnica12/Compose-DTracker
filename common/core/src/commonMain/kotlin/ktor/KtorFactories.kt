@@ -1,5 +1,6 @@
 package ktor
 
+import AuthTokenProvider
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -24,7 +25,7 @@ fun createJson(): Json {
     }
 }
 
-fun createHttpClient(json: Json, tokenProvider: () -> String?): HttpClient {
+fun createHttpClient(json: Json, tokenProvider: AuthTokenProvider): HttpClient {
     return HttpClient(KtorEngineFactory().createEngine()) {
 
         install(Logging) {
@@ -40,7 +41,7 @@ fun createHttpClient(json: Json, tokenProvider: () -> String?): HttpClient {
 
         defaultRequest {
             url(BASE_URL)
-            tokenProvider()?.let { token ->
+            tokenProvider.getAuthToken()?.let { token ->
                 header("Authorization", "Bearer $token")
             }
             contentType(ContentType.Application.Json.withCharset(Charsets.UTF_8))
