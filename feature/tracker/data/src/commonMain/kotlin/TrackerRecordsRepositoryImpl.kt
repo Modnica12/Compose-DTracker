@@ -99,6 +99,13 @@ internal class TrackerRecordsRepositoryImpl(
             return@withResult addedRecord.toDomain()
         }
 
+    override suspend fun deleteRecord(id: String): Result<Unit> = withResult {
+        val isDeleted = remoteSource.deleteTrackerRecord(id = id).success
+        if (isDeleted) {
+            cacheSource.deleteRecordWithId(id)
+        }
+    }
+
     override suspend fun updateRecord(
         trackerRecord: TrackerRecord
     ): Result<TrackerRecord> = withResult {

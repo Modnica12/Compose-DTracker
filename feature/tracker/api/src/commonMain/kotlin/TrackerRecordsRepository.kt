@@ -34,6 +34,8 @@ interface TrackerRecordsRepository {
 
     suspend fun addRecord(trackerRecord: TrackerRecord): Result<TrackerRecord>
 
+    suspend fun deleteRecord(id: String): Result<Unit>
+
     suspend fun updateRecord(trackerRecord: TrackerRecord): Result<TrackerRecord>
 
     suspend fun getProjects(key: String): Result<List<TrackerProject>>

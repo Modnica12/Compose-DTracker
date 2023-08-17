@@ -20,6 +20,10 @@ class SqlDelightTrackerDataSource(private val trackerRecordsQueries: TrackerReco
         trackerRecordsQueries.upsert(record)
     }
 
+    suspend fun deleteRecordWithId(id: String) {
+        trackerRecordsQueries.delete(id)
+    }
+
     suspend fun clear() {
         trackerRecordsQueries.clear()
     }

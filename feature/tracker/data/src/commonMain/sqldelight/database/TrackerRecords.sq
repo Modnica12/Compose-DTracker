@@ -26,5 +26,8 @@ upsert:
 INSERT OR REPLACE INTO TrackerRecordCache(id, project, activity, task, start, duration, description)
 VALUES ?;
 
+delete:
+DELETE FROM TrackerRecordCache WHERE id=?;
+
 clear:
 DELETE FROM TrackerRecordCache;

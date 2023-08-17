@@ -1,6 +1,6 @@
 package list.model
 
-sealed interface TrackerRecordsAction {
+internal sealed interface TrackerRecordsAction {
 
     data class NavigateToRecordEditor(val recordId: String): TrackerRecordsAction
 

@@ -3,7 +3,7 @@ package list.model
 import model.TrackerListItem
 
 
-sealed interface TrackerRecordsEvent {
+internal sealed interface TrackerRecordsEvent {
 
     object TrackerButtonClicked : TrackerRecordsEvent
 
@@ -19,5 +19,8 @@ sealed interface TrackerRecordsEvent {
 
     data class RecordLongClicked(val recordId: String) : TrackerRecordsEvent
 
-    data class RunRecordClicked(val recordId: String) : TrackerRecordsEvent
+    data class RecordActionClicked(
+        val recordId: String,
+        val recordAction: RecordAction
+    ) : TrackerRecordsEvent
 }

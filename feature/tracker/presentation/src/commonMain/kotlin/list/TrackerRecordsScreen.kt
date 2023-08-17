@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.Dialog
 import com.adeo.kviewmodel.compose.observeAsState
 import com.adeo.kviewmodel.odyssey.StoredViewModel
+import list.model.RecordAction
 import list.model.RecordDialogState
 import list.model.TrackerRecordsAction
 import list.model.TrackerRecordsEvent
@@ -89,9 +90,14 @@ fun TrackerRecordsScreen() {
         if (dialogState is RecordDialogState.Shown) {
             RecordActionsDialog(
                 onDismissRequest = { viewModel.obtainEvent(TrackerRecordsEvent.DismissRecordDialog) },
-                onRunClicked = {
-                    viewModel.obtainEvent(TrackerRecordsEvent.RunRecordClicked(dialogState.recordId))
-                }
+                onActionClicked = { recordAction ->
+                    viewModel.obtainEvent(
+                        TrackerRecordsEvent.RecordActionClicked(
+                            recordId = dialogState.recordId,
+                            recordAction = recordAction
+                        )
+                    )
+                },
             )
         }
 
@@ -137,23 +143,27 @@ private fun TrackerButton(tracking: Boolean, onClick: () -> Unit) {
 @Composable
 private fun RecordActionsDialog(
     onDismissRequest: () -> Unit,
-    onRunClicked: () -> Unit
+    onActionClicked: (RecordAction) -> Unit
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
         Column(
-            modifier = Modifier
-                .padding(vertical = dimens.medium)
-                .background(color = colors.primaryContainerBackground)
-        ) {
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable(onClick = onRunClicked)
-                    .padding(all = dimens.large),
-                text = "Запустить",
-                style = typography.bodyNormal,
-                color = colors.onPrimaryContainerText
+            modifier = Modifier.background(
+                color = colors.primaryContainerBackground,
+                shape = shapes.roundedDefault
             )
+        ) {
+            listOf(RecordAction.Run, RecordAction.Delete)
+                .forEach { recordAction ->
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onActionClicked(recordAction) }
+                            .padding(all = dimens.large),
+                        text = recordAction.title,
+                        style = typography.bodyNormal,
+                        color = colors.onPrimaryContainerText
+                    )
+                }
         }
     }
 }

@@ -8,6 +8,7 @@ import di.getKoinInstance
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import list.model.RecordAction
 import list.model.RecordDialogState
 import list.model.TrackerRecordsAction
 import list.model.TrackerRecordsEvent
@@ -66,12 +67,11 @@ internal class TrackerRecordsViewModel : BaseViewModel<TrackerRecordsState, Trac
             is TrackerRecordsEvent.RecordClicked -> recordClicked(id = viewEvent.recordId)
             is TrackerRecordsEvent.RecordLongClicked -> recordLongClicked(id = viewEvent.recordId)
             is TrackerRecordsEvent.DismissRecordDialog -> dismissRecordDialog()
-            is TrackerRecordsEvent.RunRecordClicked -> runRecordClicked(id = viewEvent.recordId)
+            is TrackerRecordsEvent.RecordActionClicked -> recordActionClicked(recordId = viewEvent.recordId, recordAction = viewEvent.recordAction)
             is TrackerRecordsEvent.StartClicked -> startClicked()
             is TrackerRecordsEvent.BottomBarClicked -> bottomBarClicked()
         }
     }
-
     private fun trackerButtonClicked() {
         if (viewState.currentRecord.isTracking) {
             stopTracker()
@@ -112,6 +112,13 @@ internal class TrackerRecordsViewModel : BaseViewModel<TrackerRecordsState, Trac
         viewState = viewState.copy(recordDialogState = RecordDialogState.Hidden)
     }
 
+    private fun recordActionClicked(recordId: String, recordAction: RecordAction) {
+        when (recordAction) {
+            RecordAction.Run -> runRecordClicked(id = recordId)
+            RecordAction.Delete -> deleteRecordClicked(id = recordId)
+        }
+    }
+
     private fun runRecordClicked(id: String) {
         dismissRecordDialog()
         viewModelScope.launch {
@@ -125,6 +132,13 @@ internal class TrackerRecordsViewModel : BaseViewModel<TrackerRecordsState, Trac
                     start = getCurrentDateTime().toUTC()
                 )
             }
+        }
+    }
+
+    private fun deleteRecordClicked(id: String) {
+        dismissRecordDialog()
+        viewModelScope.launch {
+            repository.deleteRecord(id = id)
         }
     }
 
