@@ -6,7 +6,7 @@ import model.TrackerActivity
 import model.TrackerProject
 import utils.formatDetails
 
-data class TrackerDetailsState(
+data class TrackerRecordViewState(
     val selectedProject: TrackerProject? = null,
     val selectedActivity: TrackerActivity? = null,
     val selectedTask: String = "",

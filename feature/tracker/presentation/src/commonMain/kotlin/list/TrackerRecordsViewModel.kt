@@ -61,7 +61,7 @@ internal class TrackerRecordsViewModel : BaseViewModel<TrackerRecordsState, Trac
         when (viewEvent) {
             is TrackerRecordsEvent.TrackerButtonClicked -> trackerButtonClicked()
             is TrackerRecordsEvent.TaskGroupClicked -> taskGroupClicked(viewEvent.taskGroup)
-            is TrackerRecordsEvent.RecordClicked -> navigateToDetails(viewEvent.recordId)
+            is TrackerRecordsEvent.RecordClicked -> navigateToRecordEditor(viewEvent.recordId)
             is TrackerRecordsEvent.StartClicked -> startClicked()
             is TrackerRecordsEvent.BottomBarClicked -> bottomBarClicked()
         }
@@ -96,16 +96,23 @@ internal class TrackerRecordsViewModel : BaseViewModel<TrackerRecordsState, Trac
     }
 
     private fun startClicked() {
-        navigateToDetails()
+        navigateToNewRecord()
     }
 
     private fun bottomBarClicked() {
-        navigateToDetails()
+        navigateToCurrentRecord()
     }
 
-    private fun navigateToDetails(recordId: String? = null) {
-        // TODO: invokeOnCompletion попробовать
-        viewAction = TrackerRecordsAction.NavigateToDetails(recordId = recordId)
+    private fun navigateToCurrentRecord() {
+        viewAction = TrackerRecordsAction.NavigateToCurrentRecord
+    }
+
+    private fun navigateToNewRecord() {
+        viewAction = TrackerRecordsAction.NavigateToNewRecord
+    }
+
+    private fun navigateToRecordEditor(recordId: String) {
+        viewAction = TrackerRecordsAction.NavigateToRecordEditor(recordId = recordId)
     }
 
     private fun stopTracker() {

@@ -11,6 +11,6 @@ object NavigationTree {
     }
 
     enum class Tracker {
-        TrackerFlow, List, Details
+        TrackerFlow, List, NewRecord, CurrentRecord, EditRecord
     }
 }

@@ -1,7 +1,9 @@
 package list.view
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -51,6 +53,7 @@ fun TrackerRecordsView(
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun RecordsList(
     modifier: Modifier = Modifier,
@@ -66,6 +69,9 @@ private fun RecordsList(
         items(items = recordsItems, key = { it.date.toString() }) { item ->
             Spacer(modifier = Modifier.height(dimens.medium))
             DateGroupCard(
+                modifier = Modifier
+                    .animateItemPlacement()
+                    .animateContentSize(),
                 dateGroup = item,
                 onRecordClick = onRecordClick,
                 onTaskGroupClick = onTaskGroupClick
@@ -79,12 +85,13 @@ private fun RecordsList(
 
 @Composable
 private fun DateGroupCard(
+    modifier: Modifier = Modifier,
     dateGroup: TrackerDateGroup,
     onRecordClick: (String) -> Unit,
     onTaskGroupClick: (TrackerListItem.TaskGroup) -> Unit
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .padding(horizontal = dimens.normal)
             .background(color = colors.primaryContainerBackground, shape = shapes.roundedDefault)
             .padding(vertical = dimens.medium)

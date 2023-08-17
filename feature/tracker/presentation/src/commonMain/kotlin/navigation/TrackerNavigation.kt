@@ -1,6 +1,7 @@
 package navigation
 
-import details.TrackerDetailsScreen
+import details.currentRecord.CurrentRecordScreen
+import details.edit.EditTrackerRecordScreen
 import list.TrackerRecordsScreen
 import ru.alexgladkov.odyssey.compose.extensions.flow
 import ru.alexgladkov.odyssey.compose.extensions.screen
@@ -11,8 +12,14 @@ fun RootComposeBuilder.trackerFlow() {
         screen(NavigationTree.Tracker.List.name) {
             TrackerRecordsScreen()
         }
-        screen(NavigationTree.Tracker.Details.name) { recordId ->
-            TrackerDetailsScreen(recordId as? String)
+        screen(NavigationTree.Tracker.NewRecord.name) {
+            CurrentRecordScreen()
+        }
+        screen(NavigationTree.Tracker.CurrentRecord.name) {
+            CurrentRecordScreen()
+        }
+        screen(NavigationTree.Tracker.EditRecord.name) { recordId ->
+            EditTrackerRecordScreen(recordId = recordId as String)
         }
     }
 }

@@ -78,8 +78,18 @@ fun TrackerRecordsScreen() {
 
         viewModel.handleAction {
             when (this) {
-                is TrackerRecordsAction.NavigateToDetails ->
-                    rootController.navigateToDetails(recordId = recordId)
+                is TrackerRecordsAction.NavigateToRecordEditor -> rootController.navigateToRecord(
+                    screen = NavigationTree.Tracker.EditRecord,
+                    recordId = recordId
+                )
+
+                is TrackerRecordsAction.NavigateToCurrentRecord -> rootController.navigateToRecord(
+                    screen = NavigationTree.Tracker.CurrentRecord
+                )
+
+                is TrackerRecordsAction.NavigateToNewRecord -> rootController.navigateToRecord(
+                    screen = NavigationTree.Tracker.NewRecord
+                )
             }
         }
     }
@@ -106,9 +116,12 @@ private fun TrackerButton(tracking: Boolean, onClick: () -> Unit) {
     }
 }
 
-private fun RootController.navigateToDetails(recordId: String?) {
+private fun RootController.navigateToRecord(
+    screen: NavigationTree.Tracker,
+    recordId: String? = null
+) {
     launch(
-        screen = NavigationTree.Tracker.Details.name,
+        screen = screen.name,
         params = recordId,
         animationType = AnimationType.Present(animationTime = 300)
     )
