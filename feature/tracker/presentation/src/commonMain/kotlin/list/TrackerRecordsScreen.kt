@@ -1,7 +1,6 @@
 package list
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
@@ -95,7 +94,6 @@ fun TrackerRecordsScreen() {
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun TrackerButton(tracking: Boolean, onClick: () -> Unit) {
     AnimatedVisibility(
